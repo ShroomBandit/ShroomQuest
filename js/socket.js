@@ -4,8 +4,9 @@ module.define('socket', function() {
     
         socket,
     
-    init = function() {
-        socket = new WebSocket('ws://74.196.225.2:8083');
+    init = function(ip) {
+
+        socket = new WebSocket('ws://' + location.host);
         socket.onopen = function() {
             console.log('Socket opened!');
         };
