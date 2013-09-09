@@ -1,0 +1,8 @@
+Jordan, check out this article I'm reading right now:
+http://gamedev.tutsplus.com/articles/game-design-articles/how-to-build-a-jrpg-a-primer-for-game-developers/
+
+also git tut:
+http://git-scm.com/book/en/Getting-Started-Git-Basics
+
+Notes:
+- I'm adding a skills.js to the logic folder so we can handle skill actions
