@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Game Map</title>
+	<style>
+        body{margin:0px; overflow:hidden;}
+
+        #loginDialog{width:150px; height:100px; margin:-50px 0px 0px -75px; position:absolute; top:50%; left:50%; border:2px solid #000000; text-align:center; background-color:#cccccc;}
+        #username{width:100px; margin:20px;}
+
+        #chat{width:300px; height:150px; color:#ffffff; display:none; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:10px; top:400px;}
+        #chat>*{position:absolute; resize:none;}
+        #chatDrag{right:0px; top:0px; cursor:move;}
+        #chatHistory{width:100%; left:0px; bottom:20px;}
+        #chatBar{width:90%; height:18px; color:#ffffff; border:none; background:transparent; left:0px; bottom:0px;}
+        #chatBar:focus{border:1px solid #ffffff;}
+    </style>
+</head>
+<body>
+    <div id="loginDialog">
+        <input id="username" name="username" type="text"><br>
+        <button id="login" type="button">Login</button>
+    </div>
+    <div id="chat">
+        <div id="chatDrag">+</div>
+        <div id="chatHistory"></div>
+        <input id="chatBar" type="text">
+    </div>
+	<canvas id='c'></canvas>
+    <script src="/client/module.js"></script>
+	<script>
+        module.execute('main');
+    </script>
+</body>
+</html>
