@@ -1,41 +1,63 @@
 module.define('socket', function() {
-
-    var model = module.import('model'),
     
-        socket,
+    var socket,
+        registry = {
+            all:[]
+        },
     
-    init = function(ip) {
-
-        socket = new WebSocket('ws://' + location.host);
+    open = function(ip) {
+        socket = new WebSocket('ws://' + ip);
         socket.onopen = function() {
             console.log('Socket opened!');
+            emit('open', false);
         };
         socket.onmessage = function(raw) {
             var msg = JSON.parse(raw.data);
-            if(msg.type === 'chat') {
-                document.getElementById('chatHistory').insertAdjacentHTML('beforeend', '<div>' + msg.data + '</div>');
-            }else if(msg.type === 'players') {
-                model.players = msg.data;
-            };
+            emit(msg.event, msg.data);
         };
         socket.onclose = function() {
             console.log('Socket closed!');
         };
     },
 
-    send = function(type, data) {
+    listen = function(event, fn) {
+        if(!(event in registry)) {
+            registry[event] = [];
+        };
+        registry[event].push(fn);
+    },
+
+    emit = function(event, data) {
+        for(var i = 0, ilen = registry[event].length; i < ilen; i++) {
+            registry[event][i](data);
+        };
+        for(var i = 0, ilen = registry.$all.length; i < ilen; i++) {
+            registry[event][i](data);
+        };
+    },
+
+    unlisten = function(event, fn) {
+        for(var i = 0, ilen = registry[event].length; i < ilen; i++) {
+            if(registry[event][i] === fn) {
+                registry[event].splice(i, 1);
+            };
+        };
+    },
+
+    send = function(event, data) {
         try {
             socket.send(JSON.stringify({
-                type:type,
+                event:event,
                 data:data
             }));
         }catch(exception) {
-            console.log(exception);
+            console.log(exception, event);
         };
     };
 
     return {
-        init:init,
+        open:open,
+        listen:listen,
         send:send
     };
 });

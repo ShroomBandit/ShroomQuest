@@ -1,42 +1,36 @@
 module.define('main', function() {
     
     var chat = module.import('chat'),
+        input = module.import('input'),
         keys = module.import('keys'),
-        logic = module.import('logic'),
         model = module.import('model'),
+        mouse = module.import('mouse'),
         socket = module.import('socket'),
         view = module.import('view'),
 
-        loginDialog = document.getElementById('loginDialog'),
-        previous = Date.now(),
-
     step = function() {
-        var current = Date.now(),
-            delta = current - previous;
-
-        // start updating
-        logic.update(delta);
-        view.draw(delta);
-        // stop updating
-        previous = current;
+        view.render(delta);
         requestAnimationFrame(step);
-    };
-
-    window.log = function() {
-        console.log(model);
     };
 
     document.getElementById('login').addEventListener('click', function() {
         model.username = document.getElementById('username').value;
-        document.getElementById('loginDialog').style.display = 'none';
-        model.me = {
-            x:5000,
-            y:2500
-        };
-        view.initialize();
-        socket.init();
-        chat.enable();
-        step();
+        var dialog = document.getElementById('loginDialog');
+        dialog.parentNode.removeChild(dialog);
+        socket.listen('open', function() {
+            socket.send('load', model.username);
+        });
+        socket.open(location.host);
+        // rather than requesting new animation frames when ready,
+        // request animation frame when ready UNLESS no new data has been sent
+        //socket.listen('all', step);
+        socket.listen('load', function(data) {
+            chat.init(socket);
+            input.init(socket);
+            keys.init(socket);
+            mouse.init(socket);
+            view.init(data, step);
+        });
     });
 
 });

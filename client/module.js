@@ -15,7 +15,7 @@ module = (function() {
         // storage for the modules' names that need to be executed as threads
         executeOnReady = {},
         // the base path to the modules
-        basePath = '/js/',
+        basePath = '/client/',
         // a setting for indicating if the modules are all defined in the same file
         // should be set to false until all the js is concatenated
         concat = false,

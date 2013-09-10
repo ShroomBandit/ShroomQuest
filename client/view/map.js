@@ -1,19 +1,18 @@
 module.define('view/map', function() {
     
-    var map, gameWindow,
+    var map, gameWindow, loadCallback,
+        tiles, tilesize,
         loaded = 0,
-        tiles = [],
-        tilesize = 40,
 
-    initialize = function(mapx, mapy, gameWindowx, gameWindowy) {
+    config = function(mapData, gameWindowx, gameWindowy) {
+        // mapData must have the properties:
+        //   width, height, tiles, tilesize
+        tiles = mapData.tiles;
+        tilesize = mapData.tilesize;
         // width and height are passed as number of pixels
-        if(mapx % tilesize !== 0 || mapy % tilesize !== 0) {
-            throw new Error('Map dimensions must be multiples of ' + tilesize);
-            return false;
-        };
         map = {
-            x:mapx/tilesize,
-            y:mapy/tilesize
+            x:mapData.width/tilesize,
+            y:mapData.height/tilesize
         };
         gameWindow = {
             pixels:{x:gameWindowx, y:gameWindowy},
@@ -22,10 +21,10 @@ module.define('view/map', function() {
                 y:Math.ceil(gameWindowy/tilesize)
             }
         };
-        loadTileImages();
     },
 
-    loadTileImages = function() {
+    loadTiles = function(callback) {
+        loadCallback = callback;
         var frag = document.createDocumentFragment();
         for(var i = 0; i < 16; i++) {
             if(i !== 5 && i !== 10) {
@@ -44,71 +43,46 @@ module.define('view/map', function() {
     checkImageLoad = function(event) {
         loaded++;
         if(loaded === 14) {
-            generate();
+            loadCallback();
         };
     },
 
-    generate = function() {
-        for(var y = 0; y < map.y; y++) {
-            for(var x = 0; x < map.x; x++) {
-                var left, top,
-                    newTile = [],
-                    tileNum = x + y * (map.x);
-                if(y !== 0) {
-                    top = tiles[tileNum - map.x];
-                    newTile[0] = top.charAt(3);
-                    newTile[1] = top.charAt(2);
-                };
-                if(x !== 0) {
-                    left = tiles[tileNum - 1];
-                    if(typeof newTile[1] === 'undefined') {
-                        newTile[1] = left.charAt(0);
-                    };
-                    newTile[2] = left.charAt(3);
-                };
-                for(var i = 0; i < 4; i++) {
-                    if(typeof newTile[i] === 'undefined') {
-                        newTile[i] = Math.round(Math.pow(Math.random(), 2)).toString();
-                    };
-                };
-                newTile = newTile.join('');
-                if(newTile === '0101') {
-                    newTile = '0100';
-                }else if(newTile === '1010') {
-                    newTile = '1011';
-                };
-                tiles[tileNum] = newTile;
-            };
-        };
-    },
-
-    draw = function(ctx, centerX, centerY) {
+    draw = function(ctx, posX, posY) {
         if(tiles.length === 0) {
             return false;
         };
-        var offset = {
+        // determine the x and y coordinates of the top left corner
+        var canvasOrigin = {
                 pixels:{
-                    x:centerX - gameWindow.pixels.x / 2,
-                    y:centerY - gameWindow.pixels.y / 2
+                    x:posX - gameWindow.pixels.x / 2,
+                    y:posY - gameWindow.pixels.y / 2
                 }
             };
 
-        offset.tiles = {
-            x:Math.floor(offset.pixels.x / tilesize),
-            y:Math.floor(offset.pixels.y / tilesize)
+        // determine the first tile to draw (in the top left corner)
+        canvasOrigin.tiles = {
+            x:Math.floor(canvasOrigin.pixels.x / tilesize),
+            y:Math.floor(canvasOrigin.pixels.y / tilesize)
         };
-        for(var y = 0; y < gameWindow.tiles.y; y++) {
-            for(var x = 0; x < gameWindow.tiles.x; x++) {
-                var tileNum = x + offset.tiles.x + (y + offset.tiles.y)*map.x;
+        // determine the offset in pixels since the player can occupy any position
+        // and not just intervals of 40
+        offset = {
+            x:canvasOrigin.pixels.x % 40,
+            y:canvasOrigin.pixels.y % 40
+        };
+        for(var y = 0; y < gameWindow.tiles.y + 1; y++) {
+            for(var x = 0; x < gameWindow.tiles.x + 1; x++) {
+                var tileNum = x + canvasOrigin.tiles.x + (y + canvasOrigin.tiles.y)*map.x;
                     image = document.getElementById(tiles[tileNum]);
-                ctx.drawImage(image, x * tilesize - (offset.pixels.x % 40), y * tilesize - (offset.pixels.y % 40));
+                ctx.drawImage(image, x * tilesize - offset.x, y * tilesize - offset.y);
             };
         };
     };
 
     return {
-        initialize:initialize,
-        draw:draw
+        config:config,
+        draw:draw,
+        loadTiles:loadTiles
     };
     
 });
