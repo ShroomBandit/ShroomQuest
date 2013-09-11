@@ -9,7 +9,7 @@ module.define('main', function() {
         view = module.import('view'),
 
     step = function() {
-        view.render(delta);
+        view.render();
         requestAnimationFrame(step);
     };
 
@@ -18,13 +18,13 @@ module.define('main', function() {
         var dialog = document.getElementById('loginDialog');
         dialog.parentNode.removeChild(dialog);
         socket.listen('open', function() {
-            socket.send('load', model.username);
+            socket.send('login', model.username);
         });
         socket.open(location.host);
         // rather than requesting new animation frames when ready,
         // request animation frame when ready UNLESS no new data has been sent
         //socket.listen('all', step);
-        socket.listen('load', function(data) {
+        socket.listen('loadGameData', function(data) {
             chat.init(socket);
             input.init(socket);
             keys.init(socket);

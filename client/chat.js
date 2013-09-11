@@ -26,8 +26,14 @@ module.define('chat', function() {
         };
     },
 
-    addToHistory = function(text) {
-        chatHistory.insertAdjacentHTML('<div>' + text + '</div>');
+    addToHistory = function(messages) {
+        var frag = document.createDocumentFragment();
+        for(var i = 0, ilen = messages.length; i < ilen; i++) {
+            var div = document.createElement('div');
+            div.innerHTML = messages[i];
+            frag.appendChild(div);
+        };
+        chatHistory.appendChild(frag);
     },
 
     init = function(ws) {

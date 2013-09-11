@@ -1,9 +1,14 @@
-var model = require('./model'),
-	moved = false;
-	vel = {
+var gs,
+    vel = {
 		straight:5,
 		diagonal:Math.round(5/Math.sqrt(2))
 	},
+
+init = function(gameServer) {
+    gs = gameServer;
+    gs.listen('player', function(data) {
+    });
+},
 
 update = function(){
 	var type = 'straight';

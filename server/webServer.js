@@ -10,7 +10,7 @@ var fs = require('fs'),
     };
 
 exports.create = function(root, port){ 
-    http.createServer(function(request, response) {
+    var server = http.createServer(function(request, response) {
         var uri = url.parse(request.url).pathname,
             filename = path.join(root, uri);
 
@@ -39,4 +39,5 @@ exports.create = function(root, port){
         });
     }).listen(port);
     console.log('Listening to port %d.', port);
+    return server;
 };

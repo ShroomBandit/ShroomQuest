@@ -13,12 +13,15 @@ module.define('view', function() {
             y:600
         },
 
-    init = function(mapData, callback) {
+    init = function(data, callback) {
         canvas.width = gameWindow.x;
         canvas.height = gameWindow.y;
-        // mapData is not yet defined
-        // we need a way of getting initial data from the server
-        map.config(mapData, gameWindow.x, gameWindow.y);
+        model.players = {};
+        model.players[model.username] = {
+            x:data.width/2,
+            y:data.height/2
+        };
+        map.config(data, gameWindow.x, gameWindow.y);
         map.loadTiles(callback);
     },
 

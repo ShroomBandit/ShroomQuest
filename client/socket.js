@@ -17,6 +17,7 @@ module.define('socket', function() {
         };
         socket.onclose = function() {
             console.log('Socket closed!');
+            emit('close', false);
         };
     },
 
@@ -28,10 +29,12 @@ module.define('socket', function() {
     },
 
     emit = function(event, data) {
-        for(var i = 0, ilen = registry[event].length; i < ilen; i++) {
-            registry[event][i](data);
+        if(event in registry) {
+            for(var i = 0, ilen = registry[event].length; i < ilen; i++) {
+                registry[event][i](data);
+            };
         };
-        for(var i = 0, ilen = registry.$all.length; i < ilen; i++) {
+        for(var i = 0, ilen = registry.all.length; i < ilen; i++) {
             registry[event][i](data);
         };
     },
