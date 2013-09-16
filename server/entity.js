@@ -1,7 +1,7 @@
 var Entity = function() {};
 
 Entity.prototype = {
-    init:function(x, y, type, id) {
+    entityInit:function(x, y, type, id) {
         this.setPosition(x, y); 
         this.type = type;
         this.id = id;

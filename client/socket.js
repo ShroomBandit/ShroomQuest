@@ -13,7 +13,13 @@ module.define('socket', function() {
         };
         socket.onmessage = function(raw) {
             var msg = JSON.parse(raw.data);
-            emit(msg.event, msg.data);
+            if(!Array.isArray(msg)) {
+                emit(msg.event, msg.data);
+            }else{
+                for(var individual in msg) {
+                    emit(individual.event, individual.data);
+                };
+            };
         };
         socket.onclose = function() {
             console.log('Socket closed!');

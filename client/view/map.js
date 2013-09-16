@@ -4,7 +4,7 @@ module.define('view/map', function() {
         tiles, tilesize,
         loaded = 0,
 
-    config = function(mapData, gameWindowx, gameWindowy) {
+    config = function(mapData, gameWindowX, gameWindowY) {
         // mapData must have the properties:
         //   width, height, tiles, tilesize
         tiles = mapData.tiles;
@@ -15,10 +15,10 @@ module.define('view/map', function() {
             y:mapData.height/tilesize
         };
         gameWindow = {
-            pixels:{x:gameWindowx, y:gameWindowy},
+            pixels:{x:gameWindowX, y:gameWindowY},
             tiles:{
-                x:Math.ceil(gameWindowx/tilesize),
-                y:Math.ceil(gameWindowy/tilesize)
+                x:Math.ceil(gameWindowX/tilesize),
+                y:Math.ceil(gameWindowY/tilesize)
             }
         };
     },
@@ -40,7 +40,7 @@ module.define('view/map', function() {
         document.body.appendChild(frag);
     },
 
-    checkImageLoad = function(event) {
+    checkImageLoad = function() {
         loaded++;
         if(loaded === 14) {
             loadCallback();

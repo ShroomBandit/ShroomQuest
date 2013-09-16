@@ -1,19 +1,20 @@
-var	gs,
-    messages = [],
+var messages = [],
 
 init = function(gameServer) {
-	gs = gameServer;
-	gs.listen('chat', function(data) {
+	gameServer.listen('chat', function(data) {
 		messages.push(data);
 	});
 },
 
-sendAll = function() {
+getAll = function() {
     if(messages.length > 0) {
-        gs.broadcast('chat', messages);
+        var temp = messages;
         messages = [];
+        return temp;
+    }else{
+        return false;
     };
 };
 
 exports.init = init;
-exports.sendAll = sendAll; 
+exports.getAll = getAll; 

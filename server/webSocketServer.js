@@ -2,8 +2,7 @@ var webServer = require('./webServer'),
     WebSocketServer = require('ws').Server;
 
 exports.create = function(root, port) {
-    var clients = [],   // currently not used
-        registry = {},
+    var registry = {},
         server = webServer.create(root, port),
         wss = new WebSocketServer({server:server}),
 
@@ -41,12 +40,7 @@ exports.create = function(root, port) {
     };
 
     wss.on('connection', function(ws) {
-        emit('open');
-        //clients.push(ws);
-        ws.on('message', function(raw) {
-            var msg = JSON.parse(raw);
-            emit(msg.event, msg.data);
-        });
+        emit('open', ws);
         ws.on('close', function() {
             emit('close');
         });

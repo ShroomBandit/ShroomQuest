@@ -1,9 +1,9 @@
 module.exports = extend = function(oldConstructor, newProps) {
     var newConstructor = function() {};
-    newConstructor.prototype = Object.create(oldConstructor.prototype);
-    newConstructor.prototype.parentInit = oldConstructor.prototype.init;
+    newConstructor.prototype = Object.getPrototypeOf(Object.create(oldConstructor.prototype));
     for(var name in newProps) {
         newConstructor.prototype[name] = newProps[name];
     };
+    newConstructor.prototype.constructor = newConstructor;
     return newConstructor;
 };
