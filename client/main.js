@@ -8,20 +8,13 @@ module.define('main', function() {
         socket = module.import('socket'),
         view = module.import('view'),
 
-    init = function() {
-        socket.unlisten('update', init);
-        socket.listen('update', update);
-        step();
-    },
-
     step = function() {
         view.render();
         requestAnimationFrame(step);
     },
 
     update = function(data) {
-        //model.players = data;
-        // actually need to only apply differences
+        model.players = data;
     };
 
     document.getElementById('login').addEventListener('click', function() {
@@ -41,7 +34,8 @@ module.define('main', function() {
             keys.init(socket);
             mouse.init(socket);
             view.init(data, function() {
-                socket.listen('update', init);
+                socket.listen('position', update);
+                step();
             });
         });
     });

@@ -1,4 +1,4 @@
-var generate = function(width, height) {
+module.exports = generateMap = function(width, height) {
     var tiles = [];
     for(var y = 0; y < height; y++) {
         for(var x = 0; x < width; x++) {
@@ -33,4 +33,3 @@ var generate = function(width, height) {
     };
     return tiles;
 };
-exports.generate = generate;

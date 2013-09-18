@@ -21,12 +21,14 @@ module.define('keys', function() {
 
     init = function(socket) {
         document.addEventListener('keydown', function(event){
-            if(!model.chatting) {
+            if(!model.chatting && event.keyCode in keymap) {
                 socket.send('keydown', keymap[event.keyCode]);
             };
         });
         document.addEventListener('keyup', function(event){
-            socket.send('keyup', keymap[event.keyCode]);
+            if(!model.chatting && event.keyCode in keymap) {
+                socket.send('keyup', keymap[event.keyCode]);
+            };
         });
     };
 

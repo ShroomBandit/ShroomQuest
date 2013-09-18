@@ -1,9 +1,21 @@
-module.exports = extend = function(oldConstructor, newProps) {
-    var newConstructor = function() {};
-    newConstructor.prototype = Object.getPrototypeOf(Object.create(oldConstructor.prototype));
-    for(var name in newProps) {
-        newConstructor.prototype[name] = newProps[name];
+module.exports = extend = function(oldConstructor, extension) {
+    // set the init() function as the new constructor
+    // and remove it from the extension object,
+    // since it does not need to be in the prototype
+    newConstructor = ('init' in extension) ? extension.init : function() {};
+
+    // add all the properties and methods from the old constructor's prototype
+    // to the new constructor's prototype
+    if(oldConstructor) {
+        newConstructor.prototype = Object.getPrototypeOf(Object.create(oldConstructor.prototype));
     };
-    newConstructor.prototype.constructor = newConstructor;
+
+    // add all the properties and methods from the extension object
+    // to the new constructor's prototype
+    for(var name in extension) {
+        newConstructor.prototype[name] = extension[name];
+    };
+
+    // return the new constructor
     return newConstructor;
 };

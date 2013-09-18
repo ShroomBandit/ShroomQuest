@@ -1,9 +1,7 @@
 module.define('socket', function() {
     
     var socket,
-        registry = {
-            all:[]
-        },
+        registry = {},
     
     open = function(ip) {
         socket = new WebSocket('ws://' + ip);
@@ -16,8 +14,8 @@ module.define('socket', function() {
             if(!Array.isArray(msg)) {
                 emit(msg.event, msg.data);
             }else{
-                for(var individual in msg) {
-                    emit(individual.event, individual.data);
+                for(var i = 0, ilen = msg.length; i < ilen; i++) {
+                    emit(msg[i].event, msg[i].data);
                 };
             };
         };
@@ -39,9 +37,6 @@ module.define('socket', function() {
             for(var i = 0, ilen = registry[event].length; i < ilen; i++) {
                 registry[event][i](data);
             };
-        };
-        for(var i = 0, ilen = registry.all.length; i < ilen; i++) {
-            registry[event][i](data);
         };
     },
 
