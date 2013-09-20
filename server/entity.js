@@ -1,8 +1,8 @@
 module.exports = Entity = extend(false, {
-    init:function(x, y, type, id) {
-        this.setPosition(x, y); 
-        this.type = type;
+    init:function(id, type, x, y) {
         this.id = id;
+        this.type = type;
+        this.setPosition(x, y); 
     },
 
     getPosition:function() {

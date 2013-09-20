@@ -13,6 +13,13 @@ module.define('view', function() {
             y:600
         },
 
+    getOffset = function() {
+        return {
+            x:gameWindow.x/2,
+            y:gameWindow.y/2
+        };
+    },
+
     init = function(data, callback) {
         canvas.width = gameWindow.x;
         canvas.height = gameWindow.y;
@@ -31,9 +38,19 @@ module.define('view', function() {
                 character.draw(ctx, model.players[player].x - me.x + gameWindow.x/2, model.players[player].y - me.y + gameWindow.y/2);
             };
         };
+        if('projectiles' in model) {
+            for(var i = 0, ilen = model.projectiles.length; i < ilen; i++) {
+                ctx.fillStyle = 'rgba(0,0,0,1)';
+                ctx.beginPath();
+                ctx.arc(model.projectiles[i].x - me.x + gameWindow.x/2, model.projectiles[i].y - me.y + gameWindow.y/2, 3, 0, Math.PI*2, false);
+                ctx.closePath();
+                ctx.fill();
+            };
+        };
     };
 
     return {
+        getOffset:getOffset,
         init:init,
         render:render
     };

@@ -19,14 +19,21 @@ module.define('keys', function() {
         '57':'9'
     },
 
+    pressed = {},
+
     init = function(socket) {
+        for(var key in keymap) {
+            pressed[key] = false;
+        };
         document.addEventListener('keydown', function(event){
-            if(!model.chatting && event.keyCode in keymap) {
+            if(!model.chatting && event.keyCode in keymap && !pressed[event.keyCode]) {
+                pressed[event.keyCode] = true;
                 socket.send('keydown', keymap[event.keyCode]);
             };
         });
         document.addEventListener('keyup', function(event){
             if(!model.chatting && event.keyCode in keymap) {
+                pressed[event.keyCode] = false;
                 socket.send('keyup', keymap[event.keyCode]);
             };
         });

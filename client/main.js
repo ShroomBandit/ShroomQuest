@@ -11,10 +11,6 @@ module.define('main', function() {
     step = function() {
         view.render();
         requestAnimationFrame(step);
-    },
-
-    update = function(data) {
-        model.players = data;
     };
 
     document.getElementById('login').addEventListener('click', function() {
@@ -29,12 +25,11 @@ module.define('main', function() {
         // request animation frame when ready UNLESS no new data has been sent
         //socket.listen('all', step);
         socket.listen('loadGameData', function(data) {
-            chat.init(socket);
-            input.init(socket);
-            keys.init(socket);
-            mouse.init(socket);
             view.init(data, function() {
-                socket.listen('position', update);
+                chat.init(socket);
+                keys.init(socket);
+                input.init(socket);
+                mouse.init(socket, view.getOffset());
                 step();
             });
         });

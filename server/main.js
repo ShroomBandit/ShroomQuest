@@ -11,7 +11,7 @@ server.onConnection = function(ws) {
     if(!world.running) {
         world.start();
     };
-    world.playerConnect(ws);
+    world.addPlayer(ws);
     ws.on('close', function() {
         world.stop();
     });

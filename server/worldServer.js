@@ -1,6 +1,7 @@
 var chat = require('./chat'),
     generateMap = require('./generateMap'),
-	Player = require('./player');
+	Player = require('./player'),
+    Projectile = require('./projectile');
 
 module.exports = WorldServer = extend(false, {
     init:function(id, webSocketServer) {
@@ -15,8 +16,20 @@ module.exports = WorldServer = extend(false, {
         };
         this.map.tiles = generateMap(this.map.width/this.map.tilesize, this.map.height/this.map.tilesize)
 
+        this.updatesPerSecond = 60;
         this.players = [];
+        this.projectiles = [];
         this.running = false;
+    },
+
+    addPlayer:function(connection) {
+        var id = this.players.length;
+        this.players[id] = new Player(id, this, connection);
+    },
+
+    addProjectile:function(startX, startY, destX, destY, velocity) {
+        var id = this.projectiles.length;
+        this.projectiles[id] = new Projectile(id, startX, startY, destX, destY, velocity);
     },
 
     broadcastToWorld:function(message) {
@@ -25,16 +38,17 @@ module.exports = WorldServer = extend(false, {
         };
     },
 
-    playerConnect:function(connection) {
-        var id = this.players.length;
-        this.players[id] = new Player(this, connection);
+    removePlayer:function(id) {
     },
 
     start:function() {
         var self = this;
+        var previous = Date.now();
         this.running = setInterval(function() {
-            self.update.call(self)
-        }, 100);
+            var current = Date.now();
+            self.update.call(self, (current-previous)/1000);
+            previous = current;
+        }, self.updatesPerSecond);
     },
 
     stop:function() {
@@ -42,28 +56,46 @@ module.exports = WorldServer = extend(false, {
         this.running = false;
     },
 
-    update:function() {
+    update:function(timeDelta) {
+        var self = this;
         // The events array is an array of objects, where each object
         // contains and event and its corresponding data to be broadcasted
         // to all the clients (players).
         var events = [];
-        // check for messages and prepare for broadcast
-        var messages = chat.getAll();
-        if(messages) {
-            events.push({
-                event:'chat',
-                data:messages
-            });
-        };
-        // check for player updates and prepare for broadcast
+
+        // check for player updates
         var playerData = {};
         for(var i = 0, ilen = this.players.length; i < ilen; i++) {
+            this.players[i].updatePosition(timeDelta);
             playerData[this.players[i].username] = this.players[i].getPosition();
+            // check for messages
+            var messages = this.players[i].emptyChatQueue();
+            if(messages) {
+                events.push({
+                    event:'chat',
+                    data:messages
+                });
+            };
         };
         events.push({
-            event:'position',
+            event:'players',
             data:playerData
         });
+
+        // update all projectiles
+        var projData = [];
+        for(var i = 0, ilen = this.projectiles.length; i < ilen; i++) {
+            this.projectiles[i].updatePosition(timeDelta);
+            projData.push(this.projectiles[i].getPosition());
+        };
+        if(projData.length > 0) {
+            events.push({
+                event:'projectiles',
+                data:projData
+            });
+        };
+
+        // broadcast if necessary
         if(events.length > 0) {
             this.broadcastToWorld(JSON.stringify(events));
         };
