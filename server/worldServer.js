@@ -1,5 +1,4 @@
-var chat = require('./chat'),
-    generateMap = require('./generateMap'),
+var generateMap = require('./generateMap'),
 	Player = require('./player'),
     Projectile = require('./projectile');
 
