@@ -1,8 +1,10 @@
-var Entity = require('./entity');
+var extend = require('./extend'),
+    Entity = require('./entity');
 
 module.exports = Projectile = extend(Entity, {
-    init:function(id, startX, startY, destX, destY, velocity) {
-        Entity.call(this, id, 'projectile', startX, startY);
+    init:function(id, owner, startX, startY, destX, destY, velocity) {
+        Entity.call(this, id, 'projectile', startX, startY, 3);
+        this.owner = owner;
         this.destX = destX;
         this.destY = destY;
         this.startX = startX;

@@ -10,7 +10,6 @@ module.exports = extend = function(oldConstructor, extension) {
         for(var name in oldConstructor.prototype) {
             newConstructor.prototype[name] = oldConstructor.prototype[name];
         };
-        //newConstructor.prototype = Object.getPrototypeOf(Object.create(oldConstructor.prototype));
     };
 
     // add all the properties and methods from the extension object

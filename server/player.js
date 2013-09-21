@@ -21,7 +21,7 @@ module.exports = Player = extend(Character, {
             var msg = JSON.parse(raw),
                 data = msg.data,
                 event = msg.event;
-            console.log(msg);
+            //console.log(msg);
             if(typeof self.username === 'undefined' && event !== 'login') {
                 self.connection.send(JSON.stringify({
                     event:'loginfirst'
@@ -52,7 +52,7 @@ module.exports = Player = extend(Character, {
                 case 'leftmousedown':
                     // in the future, get data from active spell
                     var pos = self.getPosition();
-                    self.server.addProjectile(pos.x, pos.y, pos.x+data.x, pos.y+data.y, 200);
+                    self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, 200);
                     break;
                 case 'leftmouseup':
                     break;
