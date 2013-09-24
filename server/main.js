@@ -12,7 +12,4 @@ server.onConnection = function(ws) {
         world.start();
     };
     world.addPlayer(ws);
-    ws.on('close', function() {
-        world.stop();
-    });
 };

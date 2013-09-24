@@ -2,22 +2,20 @@ var extend = require('./extend'),
     Entity = require('./entity');
 
 module.exports = Projectile = extend(Entity, {
-    init:function(id, owner, startX, startY, destX, destY, velocity, damage) {
-        Entity.call(this, id, 'projectile', startX, startY, 3);
+    init:function(id, owner, startX, startY, destX, destY, velocity, radius, damage) {
+        Entity.call(this, id, 'projectile', startX, startY, radius);
         this.owner = owner;
         this.destX = destX;
         this.destY = destY;
-        this.startX = startX;
-        this.startY = startY;
-        this.calculateVelocity(velocity);
+        this.calculateVelocityComponents(velocity);
         this.damage = damage;
     },
 
-    calculateVelocity:function(velocity) {
-        var lengthX = this.destX - this.startX,
-            lengthY = this.destY - this.startY;
+    calculateVelocityComponents:function(velocity) {
+        var lengthX = this.destX - this.x,
+            lengthY = this.destY - this.y,
+            angle = Math.atan(lengthY/lengthX);
         // angle is calculated from positive x axis moving counterclockwise
-        var angle = Math.atan(lengthY/lengthX);
         if(lengthX < 0) {
             angle += Math.PI;
         };

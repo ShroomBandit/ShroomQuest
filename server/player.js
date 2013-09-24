@@ -54,7 +54,17 @@ module.exports = Player = extend(Character, {
                 case 'leftmousedown':
                     // in the future, get data from active spell
                     var pos = self.getPosition();
-                    self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, 200, 10);
+                    var v, r, d;
+                    if(data.skill === 'small') {
+                        v = 200,
+                        r = 3,
+                        d = 10;
+                    }else if(data.skill === 'big') {
+                        v = 100,
+                        r = 7,
+                        d = 40;
+                    };
+                    self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, v, r, d);
                     break;
                 case 'leftmouseup':
                     break;
@@ -64,6 +74,7 @@ module.exports = Player = extend(Character, {
         });
         this.connection.on('close', function() {
             // save data to database
+            self.server.removePlayer(this.id);
         });
     },
 

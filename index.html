@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Game Map</title>
+	<title>ShroomQuest</title>
 	<style>
         body{margin:0px; overflow:hidden;}
 
@@ -10,31 +10,30 @@
 
         #foreground{position:absolute; left:0px; top:0px; display:none;}
 
-        #chat{width:300px; height:150px; color:#ffffff; display:none; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:10px; top:545px;}
+        #chat{width:300px; height:150px; color:#ffffff; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:5px; top:545px;}
         #chat>*{position:absolute; resize:none;}
         #chatDrag{right:0px; top:0px; cursor:move;}
         #chatHistory{width:100%; left:0px; bottom:20px;}
         #chatBar{width:90%; height:18px; color:#ffffff; border:none; background:transparent; left:0px; bottom:0px;}
         #chatBar:focus{border:1px solid #ffffff;}
 
-        #skillbar{position:absolute; top:645px; left:420px; width:400px; height:50px; background-color:#444444; border-radius:5px;}
+        #skillbar{position:absolute; top:645px; left:420px; width:500px; height:50px; background-color:#444444; border-radius:5px;}
+        .skill{width:40px; height:40px; display:inline-block; margin:3px 1px; border:2px solid #000000;}
 
-        #player{position:absolute; top:585px; left:500px; width:200px; height:45px; background-color:#000000; padding:5px; border-radius:10px;}
-        .barWrapper{width:100%; height:20px; margin-bottom:5px; position:relative;}
+        #player{position:absolute; top:5px; left:5px; width:200px; height:30px; background-color:#000000; padding:4px; border-radius:10px;}
+        .barWrapper{width:100%; height:14px; margin-bottom:2px; position:relative;}
         #healthbar{width:100%; height:100%; background-color:#24ad11; border-radius:5px 5px 0px 0px;}
         #resourcebar{width:100%; height:100%; background-color:#325ff0; border-radius:0px 0px 5px 5px;}
         .barText{position:absolute; top:0px; left:0px; width:100%; text-align:center; color:#ffffff;}
 
-        #minimap{position:absolute; top:545px; left:1045px; width:150px; height:150px; background-color:#000000; opacity:0.4;}
+        #minimap{position:absolute; top:545px; left:1045px; width:150px; height:150px; background-color:#000000;}
+
+        #warning{position:absolute; top:200px; left:0px; width:1200px; text-align:center; color:#ffffff;}
 
         canvas{position:absolute; top:0px; left:0px;}
     </style>
 </head>
 <body>
-    <div id="loginDialog">
-        <input id="username" name="username" type="text"><br>
-        <button id="login" type="button">Login</button>
-    </div>
 	<canvas id='background'></canvas>
 	<canvas id='entities'></canvas>
     <div id="foreground">
@@ -43,13 +42,28 @@
             <div id="chatHistory"></div>
             <input id="chatBar" type="text">
         </div>
-        <div id="skillbar">1337 skillz
+        <div id="skillbar">
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
+            <div class="skill"></div>
         </div>
         <div id="player">
             <div class="barWrapper"><div id="healthbar"></div><div class="barText">200/200</div></div>
             <div class="barWrapper"><div id="resourcebar"></div><div class="barText">50/50</div></div>
         </div>
         <div id="minimap"></div>
+        <div id="warning"></div>
+    </div>
+    <div id="loginDialog">
+        <input id="username" name="username" type="text"><br>
+        <button id="login" type="button">Login</button>
     </div>
     <script src="/client/module.js"></script>
 	<script>

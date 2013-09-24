@@ -26,10 +26,10 @@ module.exports = WorldServer = extend(false, {
         this.players[id] = new Player(id, this, connection);
     },
 
-    addProjectile:function(owner, startX, startY, destX, destY, velocity, damage) {
+    addProjectile:function(owner, startX, startY, destX, destY, velocity, radius, damage) {
         var id = this.getValidId(this.projectiles);
         console.log('projectile '+id+' fired by player '+owner);
-        this.projectiles[id] = new Projectile(id, owner, startX, startY, destX, destY, velocity, damage);
+        this.projectiles[id] = new Projectile(id, owner, startX, startY, destX, destY, velocity, radius, damage);
     },
 
     broadcastToWorld:function(message) {
@@ -119,7 +119,9 @@ module.exports = WorldServer = extend(false, {
                 this.removeProjectile(i);
             }else{
                 projectile.updatePosition(timeDelta);
-                projData.push(projectile.getPosition());
+                var temp = projectile.getPosition();
+                temp.radius = projectile.hitRadius;
+                projData.push(temp);
             };
         });
         if(projData.length > 0) {
@@ -134,7 +136,6 @@ module.exports = WorldServer = extend(false, {
             this.forEachEntity(this.projectiles, function(projectile, j) {
                 var collision = this.testCollision(player, projectile);
                 if(collision && i !== projectile.owner) {
-                    console.log('projectile '+j+' hit player '+i)
                     player.registerHit(projectile);
                     this.removeProjectile(j);
                 };

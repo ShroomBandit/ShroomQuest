@@ -1,11 +1,8 @@
 module.define('main', function() {
     
     var character = module.import('character'),
-        chat = module.import('chat'),
-        keys = module.import('keys'),
         map = module.import('map'),
         model = module.import('model'),
-        mouse = module.import('mouse'),
         ui = module.import('ui'),
         utils = module.import('utils'),
 
@@ -43,13 +40,11 @@ module.define('main', function() {
     processMessage = function(event, data) {
         switch(event) {
             case 'chat':
-                chat.addToHistory(data);
+                ui.addToChatHistory(data);
                 break;
             case 'loadGameData':
-                chat.init(sendMessage);
-                keys.init(sendMessage);
-                mouse.init(sendMessage, gameWindow.x/2, gameWindow.y/2);
                 map.config(data, gameWindow.x, gameWindow.y);
+                ui.init(sendMessage, gameWindow.x/2, gameWindow.y/2, data.width, data.height);
                 // later will be load images
                 map.loadTiles(step);
                 break;
@@ -69,13 +64,14 @@ module.define('main', function() {
     },
 
     render = function() {
-        entctx.clearRect(0, 0, gameWindow.x, gameWindow.y);
+        // do not continue execution if the model has not been written yet
         if(!('players' in model)) return false;
         var me = model.players[model.username];
         if(lastPos !== me) {
             map.draw(bgctx, me.x, me.y);
             lastPos = me;
         };
+        entctx.clearRect(0, 0, gameWindow.x, gameWindow.y);
         utils.framerate(entctx, gameWindow.x - 100, 20);
         character.draw(entctx, gameWindow.x/2, gameWindow.y/2);
         for(var player in model.players) {
@@ -87,7 +83,7 @@ module.define('main', function() {
             for(var i = 0, ilen = model.projectiles.length; i < ilen; i++) {
                 entctx.fillStyle = 'rgba(0,0,0,1)';
                 entctx.beginPath();
-                entctx.arc(model.projectiles[i].x - me.x + gameWindow.x/2, model.projectiles[i].y - me.y + gameWindow.y/2, 3, 0, Math.PI*2, false);
+                entctx.arc(model.projectiles[i].x - me.x + gameWindow.x/2, model.projectiles[i].y - me.y + gameWindow.y/2, model.projectiles[i].radius, 0, Math.PI*2, false);
                 entctx.closePath();
                 entctx.fill();
             };
