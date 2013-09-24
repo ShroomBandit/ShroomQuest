@@ -2,7 +2,7 @@ module.define('chat', function() {
 
     var model = module.import('model'),
 
-        socket,
+        sendMessage,
         chat = document.getElementById('chat'),
         chatBar = document.getElementById('chatBar'),
         chatHistory = document.getElementById('chatHistory'),
@@ -12,7 +12,7 @@ module.define('chat', function() {
             event.preventDefault();
             if(document.activeElement === chatBar) {
                 if(chatBar.value !== '') {
-                    socket.send('chat', chatBar.value);
+                    sendMessage('chat', chatBar.value);
                     chatBar.value = '';
                 };
                 document.body.focus();
@@ -36,18 +36,16 @@ module.define('chat', function() {
         chatHistory.appendChild(frag);
     },
 
-    init = function(ws) {
+    init = function(sender) {
+        sendMessage = sender;
         model.chatting = false;
         chat.style.display = 'block';
         document.addEventListener('keypress', use);
-        socket = ws;
-        socket.listen('chat', addToHistory);
     },
 
     destroy = function() {
         chat.style.display = 'none';
         document.removeEventListener('keypress', use);
-        socket.unlisten('chat', addToHistory);
     };
 
     return {

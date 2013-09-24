@@ -1,4 +1,4 @@
-module.define('view/character',function(){
+module.define('character',function(){
 	
 	draw = function(ctx, x, y){
 		ctx.fillStyle = 'rgba(0,0,0,1)';

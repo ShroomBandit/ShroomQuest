@@ -21,20 +21,20 @@ module.define('keys', function() {
 
     pressed = {},
 
-    init = function(socket) {
+    init = function(send) {
         for(var key in keymap) {
             pressed[key] = false;
         };
         document.addEventListener('keydown', function(event){
             if(!model.chatting && event.keyCode in keymap && !pressed[event.keyCode]) {
                 pressed[event.keyCode] = true;
-                socket.send('keydown', keymap[event.keyCode]);
+                send('keydown', keymap[event.keyCode]);
             };
         });
         document.addEventListener('keyup', function(event){
             if(!model.chatting && event.keyCode in keymap) {
                 pressed[event.keyCode] = false;
-                socket.send('keyup', keymap[event.keyCode]);
+                send('keyup', keymap[event.keyCode]);
             };
         });
     };

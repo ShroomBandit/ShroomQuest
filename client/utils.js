@@ -1,4 +1,4 @@
-module.define('view/utils', function() {
+module.define('utils', function() {
 
     var fps = '--',
         frameCount = 0,

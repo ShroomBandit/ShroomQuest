@@ -1,4 +1,4 @@
-module.define('view/map', function() {
+module.define('map', function() {
     
     var map, gameWindow, loadCallback,
         tiles, tilesize,

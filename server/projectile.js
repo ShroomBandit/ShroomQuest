@@ -2,7 +2,7 @@ var extend = require('./extend'),
     Entity = require('./entity');
 
 module.exports = Projectile = extend(Entity, {
-    init:function(id, owner, startX, startY, destX, destY, velocity) {
+    init:function(id, owner, startX, startY, destX, destY, velocity, damage) {
         Entity.call(this, id, 'projectile', startX, startY, 3);
         this.owner = owner;
         this.destX = destX;
@@ -10,6 +10,7 @@ module.exports = Projectile = extend(Entity, {
         this.startX = startX;
         this.startY = startY;
         this.calculateVelocity(velocity);
+        this.damage = damage;
     },
 
     calculateVelocity:function(velocity) {
@@ -30,6 +31,8 @@ module.exports = Projectile = extend(Entity, {
         if((Math.abs(newX - this.destX) < Math.abs(this.x - this.destX)) ||
             (Math.abs(newY - this.destY) < Math.abs(this.y - this.destY))) {
             this.setPosition(newX, newY);
+        }else{
+            this.setPosition(this.destX, this.destY);
         };
     }
 });

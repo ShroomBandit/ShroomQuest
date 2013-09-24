@@ -26,16 +26,16 @@ module.exports = WorldServer = extend(false, {
         this.players[id] = new Player(id, this, connection);
     },
 
-    addProjectile:function(owner, startX, startY, destX, destY, velocity) {
+    addProjectile:function(owner, startX, startY, destX, destY, velocity, damage) {
         var id = this.getValidId(this.projectiles);
         console.log('projectile '+id+' fired by player '+owner);
-        this.projectiles[id] = new Projectile(id, owner, startX, startY, destX, destY, velocity);
+        this.projectiles[id] = new Projectile(id, owner, startX, startY, destX, destY, velocity, damage);
     },
 
     broadcastToWorld:function(message) {
-        for(var i = 0, ilen = this.players.length; i < ilen; i++) {
-            this.players[i].connection.send(message);
-        };
+        this.forEachEntity(this.players, function(player) {
+            player.connection.send(message);
+        });
     },
 
     forEachEntity:function(entityList, fn) {
@@ -86,15 +86,6 @@ module.exports = WorldServer = extend(false, {
         return (distance - id1.hitRadius - id2.hitRadius < 0) ? true : false;
     },
 
-    debugCollision:function(id1, id2) {
-        var pos1 = id1.getPosition(),
-            pos2 = id2.getPosition(),
-            distance = Math.round(Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2)));
-        console.log('obj1 is at: ('+pos1.x+', '+pos1.y+')');
-        console.log('obj2 is at: ('+pos2.x+', '+pos2.y+')');
-        console.log('distance between them is '+distance);
-    },
-
     update:function(timeDelta) {
         var self = this;
         // The events array is an array of objects, where each object
@@ -104,7 +95,6 @@ module.exports = WorldServer = extend(false, {
 
         // check for player updates
         var playerData = {};
-        //for(var i = 0, ilen = this.players.length; i < ilen; i++) {
         this.forEachEntity(this.players, function(player) {
             player.updatePosition(timeDelta);
             playerData[player.username] = player.getPosition();
@@ -124,10 +114,13 @@ module.exports = WorldServer = extend(false, {
 
         // update all projectiles
         var projData = [];
-        //for(var i = 0, ilen = this.projectiles.length; i < ilen; i++) {
-        this.forEachEntity(this.projectiles, function(projectile) {
-            projectile.updatePosition(timeDelta);
-            projData.push(projectile.getPosition());
+        this.forEachEntity(this.projectiles, function(projectile, i) {
+            if(projectile.x === projectile.destX && projectile.y === projectile.destY) {
+                this.removeProjectile(i);
+            }else{
+                projectile.updatePosition(timeDelta);
+                projData.push(projectile.getPosition());
+            };
         });
         if(projData.length > 0) {
             events.push({
@@ -137,16 +130,13 @@ module.exports = WorldServer = extend(false, {
         };
 
         // test for collisions
-        //for(var i = 0, ilen = this.players.length; i < ilen; i++) {
-        //    for(var j = 0, jlen = this.projectiles.length; j < jlen; j++) {
         this.forEachEntity(this.players, function(player, i) {
             this.forEachEntity(this.projectiles, function(projectile, j) {
                 var collision = this.testCollision(player, projectile);
                 if(collision && i !== projectile.owner) {
                     console.log('projectile '+j+' hit player '+i)
-                    this.debugCollision(player, projectile);
+                    player.registerHit(projectile);
                     this.removeProjectile(j);
-                    // player.removeHealth(projectile.damage);
                 };
             });
         });

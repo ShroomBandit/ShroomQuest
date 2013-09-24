@@ -9,6 +9,8 @@ module.exports = Player = extend(Character, {
         this.connection = connection;
 
         this.chatQueue = [];
+        this.health = 200;
+        this.maxHealth = 200;
         this.keys = {
             'w':false,
             'a':false,
@@ -52,7 +54,7 @@ module.exports = Player = extend(Character, {
                 case 'leftmousedown':
                     // in the future, get data from active spell
                     var pos = self.getPosition();
-                    self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, 200);
+                    self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, 200, 10);
                     break;
                 case 'leftmouseup':
                     break;
@@ -72,6 +74,26 @@ module.exports = Player = extend(Character, {
             return temp;
         }else{
             return false;
+        };
+    },
+
+    registerHit:function(projectile) {
+        var self = this;
+        this.health -= projectile.damage;
+        console.log('remove '+projectile.damage+' health from player '+this.id);
+        this.connection.send(JSON.stringify({
+            event:'resourceChange',
+            data:{
+                bar:'health',
+                current:this.health,
+                max:this.maxHealth
+            }
+        }));
+        if(this.health <= 0) {
+            this.server.removePlayer(this.id);
+            this.connection.send(JSON.stringify({
+                event:'death'
+            }));
         };
     },
 
