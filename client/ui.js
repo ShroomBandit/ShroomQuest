@@ -151,14 +151,6 @@ module.define('ui', function() {
         text[data.bar].innerHTML = data.current+'/'+data.max;
     },
 
-    updateMinimap = function(playerData) {
-        for(var i = 0, ilen = playerData.length; i < ilen; i++) {
-            var ele = document.getElementById(playerData[i].username),
-                left = playerData[i].x/mapWidth,
-                top = playerData[i].y/mapHeight;
-        };
-    },
-
     useChat = function() {
         if(document.activeElement === chatBar) {
             if(chatBar.value !== '') {
@@ -193,8 +185,7 @@ module.define('ui', function() {
 	return {
         addToChatHistory:addToChatHistory,
         init:init,
-        setResource:setResource,
-        updateMinimap:updateMinimap
+        setResource:setResource
 	};
 
 });

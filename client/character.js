@@ -1,6 +1,6 @@
 module.define('character',function(){
 	
-	draw = function(ctx, x, y){
+	var draw = function(ctx, x, y){
 		ctx.fillStyle = 'rgba(0,0,0,1)';
 		ctx.beginPath();
 		ctx.arc(x, y, 12, 0, Math.PI*2, false);
@@ -10,6 +10,6 @@ module.define('character',function(){
 
 	return {
 		draw:draw
-	}
+	};
 
 });

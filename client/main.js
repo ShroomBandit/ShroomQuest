@@ -88,6 +88,7 @@ module.define('main', function() {
                 entctx.fill();
             };
         };
+        map.minimap(entctx, model.players);
     },
 
     sendMessage = function(event, data) {

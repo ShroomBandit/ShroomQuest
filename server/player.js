@@ -74,7 +74,7 @@ module.exports = Player = extend(Character, {
         });
         this.connection.on('close', function() {
             // save data to database
-            self.server.removePlayer(this.id);
+            self.server.removePlayer(self.id);
         });
     },
 
