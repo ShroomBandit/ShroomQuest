@@ -18,13 +18,14 @@ spider.define('main', function() {
         images = {},
         loadedImages = 0,
         model = {},
-        players = [],
+        players = {},
 
     checkImageLoad = function() {
         loadedImages++;
-        if(loadedImages === 15) {
+        if(loadedImages === 21) {
             players[username] = Character.create();
-            players[username].setPosition(1000, 1000);
+            players[username].x = 1000;
+            players[username].y = 1000;
             step();
         };
     },
@@ -39,9 +40,28 @@ spider.define('main', function() {
                 images.map[bin].src = '/images/tiles/' + bin + '.png';
             };
         };
-        images.body = new Image();
-        images.body.onload = checkImageLoad;
-        images.body.src = '/images/sprites/png/walkcycle/BODY_male.png';
+        images.character = {};
+        images.character.body = new Image();
+        images.character.body.onload = checkImageLoad;
+        images.character.body.src = '/images/sprites/png/walkcycle/BODY_male.png';
+        images.character.belt = new Image();
+        images.character.belt.onload = checkImageLoad;
+        images.character.belt.src = '/images/sprites/png/walkcycle/BELT_rope.png';
+        images.character.torso = new Image();
+        images.character.torso.onload = checkImageLoad;
+        images.character.torso.src = '/images/sprites/png/walkcycle/TORSO_robe_shirt_brown.png';
+        images.character.legs = new Image();
+        images.character.legs.onload = checkImageLoad;
+        images.character.legs.src = '/images/sprites/png/walkcycle/LEGS_robe_skirt.png';
+        images.character.hair = new Image();
+        images.character.hair.onload = checkImageLoad;
+        images.character.hair.src = '/images/sprites/png/walkcycle/HEAD_hair_blonde.png';
+        images.character.head = new Image();
+        images.character.head.onload = checkImageLoad;
+        images.character.head.src = '/images/sprites/png/walkcycle/HEAD_robe_hood.png';
+        images.character.feet = new Image();
+        images.character.feet.onload = checkImageLoad;
+        images.character.feet.src = '/images/sprites/png/walkcycle/FEET_shoes_brown.png';
     },
 
     openSocket = function(ip) {
@@ -101,10 +121,10 @@ spider.define('main', function() {
         // redraw entities
         entctx.clearRect(0, 0, gameWindow.x, gameWindow.y);
         utils.framerate(entctx, gameWindow.x - 100, 20);
-        players[username].draw(entctx, gameWindow.x/2, gameWindow.y/2, images.body);
+        players[username].draw(entctx, gameWindow.x/2, gameWindow.y/2, images.character);
         for(var player in players) {
             if(player !== username) {
-                players[player].draw(entctx, players[player].x - me.x + gameWindow.x/2, players[player].y - me.y + gameWindow.y/2);
+                players[player].draw(entctx, players[player].x - me.x + gameWindow.x/2, players[player].y - me.y + gameWindow.y/2, images.character);
             };
         };
         if('projectiles' in model) {

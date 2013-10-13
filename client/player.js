@@ -4,9 +4,8 @@ spider.define('player', function() {
         Character = spider.import('character');
 
     return Player = extend(Character, {
-        create:function() {
-            var self = Character.create.call(this);
-            // lastPosition
+        create:function(x, y) {
+            var self = Character.create.call(this, x, y);
             return self;
         }
     });
