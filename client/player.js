@@ -6,6 +6,7 @@ spider.define('player', function() {
     return Player = extend(Character, {
         create:function() {
             var self = Character.create.call(this);
+            // lastPosition
             return self;
         }
     });

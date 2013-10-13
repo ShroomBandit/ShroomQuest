@@ -94,22 +94,25 @@ module.exports = WorldServer = extend(false, {
         var events = [];
 
         // check for player updates
-        var playerData = {};
         this.forEachEntity(this.players, function(player) {
             player.updatePosition(timeDelta);
-            playerData[player.username] = player.getPosition();
-            // check for messages
-            var messages = player.emptyChatQueue();
+            var messages = player.emptyChatQueue(),
+                playerData = player.getChanges();
             if(messages) {
                 events.push({
                     event:'chat',
                     data:messages
                 });
             };
-        });
-        events.push({
-            event:'players',
-            data:playerData
+            if(playerData) {
+                events.push({
+                    event:'player',
+                    data:{
+                        username:player.username,
+                        attributes:playerData
+                    }
+                });
+            };
         });
 
         // update all projectiles

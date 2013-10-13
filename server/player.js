@@ -77,6 +77,8 @@ module.exports = Player = extend(Character, {
                 case 'keyup':
                     self.keys[data] = false;
                     break;
+                case 'changeDirection':
+                    self.changeDirection(data);
                 case 'leftmousedown':
                     // in the future, get data from active spell
                     var pos = self.getPosition();
@@ -158,7 +160,9 @@ module.exports = Player = extend(Character, {
 
     updatePosition:function(timeDelta) {
         var distance = Math.round((((this.keys.w || this.keys.s) && (this.keys.a && this.keys.d)) ?
-            this.velocity*Math.sqrt(2) : this.velocity) * timeDelta);
+            this.velocity*Math.sqrt(2) : this.velocity) * timeDelta),
+            prevX = this.x,
+            prevY = this.y;
         if(this.keys.w) {
             this.y -= distance;
         };
@@ -170,6 +174,10 @@ module.exports = Player = extend(Character, {
         };
         if(this.keys.d) {
             this.x += distance;
+        };
+        if(prevX !== this.x || prevY !== this.y) {
+            this.changes.x = this.x;
+            this.changes.y = this.y;
         };
     }
 });

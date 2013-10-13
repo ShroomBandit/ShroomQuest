@@ -8,11 +8,15 @@ spider.define('character', function() {
             return self;
         },
 
-        draw:function(ctx, x, y) {
-            var img = new Image();
-            img.src = '/images/sprites/BODY_animation.png';
-            //img.src = slot.toUpperCase()+'_'+type+'.png';
-            ctx.drawImage(img, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, 0, 0, 64, 64);
+        draw:function(ctx, x, y, image) {
+            ctx.drawImage(image, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
+        },
+
+        getPosition:function() {
+            return {
+                x:this.x,
+                y:this.y
+            };
         },
 
         setPosition:function(x, y) {
@@ -20,7 +24,7 @@ spider.define('character', function() {
             this.y = y;
         },
 
-        updateAttrubtes:function(attributes) {
+        updateAttributes:function(attributes) {
             for(var attr in attributes) {
                 this[attr] = attributes[attr];
             };

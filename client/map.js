@@ -1,19 +1,11 @@
 spider.define('map', function() {
     
-    var map, gameWindow, loadCallback,
+    var map, gameWindow,
         tiles, tilesize,
-        loaded = 0,
         minimapX = 1045,
         minimapY = 545,
         minimapWidth = 150,
         minimapHeight = 150,
-
-    checkImageLoad = function() {
-        loaded++;
-        if(loaded === 14) {
-            loadCallback();
-        };
-    },
 
     config = function(mapData, gameWindowX, gameWindowY) {
         // mapData must have the properties:
@@ -36,7 +28,7 @@ spider.define('map', function() {
         };
     },
 
-    draw = function(ctx, posX, posY) {
+    draw = function(ctx, posX, posY, images) {
         if(tiles.length === 0) {
             return false;
         };
@@ -62,29 +54,14 @@ spider.define('map', function() {
         for(var y = 0; y < gameWindow.tiles.y + 1; y++) {
             for(var x = 0; x < gameWindow.tiles.x + 1; x++) {
                 var tileNum = x + canvasOrigin.tiles.x + (y + canvasOrigin.tiles.y)*map.x;
-                    image = document.getElementById(tiles[tileNum]);
-                ctx.drawImage(image, x * tilesize - offset.x, y * tilesize - offset.y);
+                /*    img = new Image();
+                img.src = '/images/tiles/' + tiles[tileNum] + '.png';
+                img.onload = function() {ctx.drawImage(img, x * tilesize - offset.x, y * tilesize - offset.y); console.log('hi')};*/
+                ctx.drawImage(images[tiles[tileNum]], x * tilesize - offset.x, y * tilesize - offset.y);
             };
         };
     },
     
-    loadTiles = function(callback) {
-        loadCallback = callback;
-        var frag = document.createDocumentFragment();
-        for(var i = 0; i < 16; i++) {
-            if(i !== 5 && i !== 10) {
-                var bin = ('000' + i.toString(2)).slice(-4),
-                    img = document.createElement('img');
-                img.src = '/images/tiles/' + bin + '.png';
-                img.id = bin;
-                img.style.display = 'none';
-                img.addEventListener('load', checkImageLoad);
-                frag.appendChild(img);
-            };
-        };
-        document.body.appendChild(frag);
-    },
-
     minimap = function(ctx, playerData) {
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(minimapX, minimapY, minimapWidth, minimapHeight);
@@ -101,7 +78,6 @@ spider.define('map', function() {
     return {
         config:config,
         draw:draw,
-        loadTiles:loadTiles,
         minimap:minimap
     };
     

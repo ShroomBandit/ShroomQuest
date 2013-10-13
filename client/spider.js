@@ -136,6 +136,7 @@ spider = (function() {
     };
     
     return {
+        config:config,
         debug:debug,
         define:define,
         execute:execute,

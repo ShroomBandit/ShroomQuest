@@ -5,23 +5,50 @@ spider.define('main', function() {
         ui = spider.import('ui'),
         utils = spider.import('utils'),
 
-        lastPos, socket,
         ent = document.getElementById('entities'),
         bg = document.getElementById('background'),
         entctx = ent.getContext('2d'),
         bgctx = bg.getContext('2d'),
 
+        socket, username,
         gameWindow = {
             x:1200,
             y:700
         },
+        images = {},
+        loadedImages = 0,
         model = {},
+        players = [],
+
+    checkImageLoad = function() {
+        loadedImages++;
+        if(loadedImages === 15) {
+            players[username] = Character.create();
+            players[username].setPosition(1000, 1000);
+            step();
+        };
+    },
+
+    loadImages = function() {
+        images.map = {};
+        for(var i = 0; i < 16; i++) {
+            if(i !== 5 && i !== 10) {
+                var bin = ('000' + i.toString(2)).slice(-4);
+                images.map[bin] = new Image();
+                images.map[bin].onload = checkImageLoad;
+                images.map[bin].src = '/images/tiles/' + bin + '.png';
+            };
+        };
+        images.body = new Image();
+        images.body.onload = checkImageLoad;
+        images.body.src = '/images/sprites/png/walkcycle/BODY_male.png';
+    },
 
     openSocket = function(ip) {
         socket = new WebSocket('ws://' + ip);
         socket.onopen = function() {
             console.log('Socket opened!');
-            sendMessage('login', model.username);
+            sendMessage('login', username);
         };
         socket.onmessage = function(raw) {
             var msg = JSON.parse(raw.data);
@@ -46,11 +73,10 @@ spider.define('main', function() {
             case 'loadGameData':
                 map.config(data, gameWindow.x, gameWindow.y);
                 ui.init(sendMessage, gameWindow.x/2, gameWindow.y/2, data.width, data.height);
-                // later will be load images
-                map.loadTiles(step);
+                loadImages();
                 break;
             case 'player':
-                players[data.username].updateAttributes(data.attrubtes);
+                players[data.username].updateAttributes(data.attributes);
                 break;
             case 'projectiles':
                 model.projectiles = data;
@@ -66,18 +92,19 @@ spider.define('main', function() {
 
     render = function() {
         // do not continue execution if the model has not been written yet
-        if(!('players' in model)) return false;
-        var me = model.players[model.username];
-        if(lastPos !== me) {
-            map.draw(bgctx, me.x, me.y);
-            lastPos = me;
-        };
+        if(!(username in players)) return false;
+        var me = players[username].getPosition();
+
+        // redraw background
+        map.draw(bgctx, me.x, me.y, images.map);
+
+        // redraw entities
         entctx.clearRect(0, 0, gameWindow.x, gameWindow.y);
         utils.framerate(entctx, gameWindow.x - 100, 20);
-        character.draw(entctx, gameWindow.x/2, gameWindow.y/2);
-        for(var player in model.players) {
-            if(player !== model.username) {
-                character.draw(entctx, model.players[player].x - me.x + gameWindow.x/2, model.players[player].y - me.y + gameWindow.y/2);
+        players[username].draw(entctx, gameWindow.x/2, gameWindow.y/2, images.body);
+        for(var player in players) {
+            if(player !== username) {
+                players[player].draw(entctx, players[player].x - me.x + gameWindow.x/2, players[player].y - me.y + gameWindow.y/2);
             };
         };
         if('projectiles' in model) {
@@ -111,7 +138,7 @@ spider.define('main', function() {
 
     document.getElementById('login').addEventListener('click', function() {
         var dialog = document.getElementById('loginDialog');
-        model.username = document.getElementById('username').value;
+        username = document.getElementById('username').value;
         dialog.parentNode.removeChild(dialog);
         document.getElementById('foreground').style.display = 'block';
         openSocket(location.host);

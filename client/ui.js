@@ -45,6 +45,9 @@ spider.define('ui', function() {
         selectedSkill,
         skills = ['small', 'big', false, false, false, false, false, false, false, false],
 
+        // mouse vars
+        direction = 3,
+
         // warning box vars
         warningMessage,
         warningBox = document.getElementById('warning'),
@@ -93,6 +96,30 @@ spider.define('ui', function() {
     },
 
     addMouseEventListeners = function(offsetX, offsetY) {
+        document.addEventListener('mousemove', function(event) {
+            var newDirection,
+                relX = event.clientX - offsetX,
+                relY = event.clientY - offsetY;
+            if(relX >= relY) {
+                // bottom-right side of line y = x
+                if(relX >= Math.abs(relY)) {
+                    newDirection = 4;
+                }else{
+                    newDirection = 1;
+                };
+            }else{
+                // top-left side of line y = x
+                if(Math.abs(relX) >= relY) {
+                    newDirection = 2;
+                }else{
+                    newDirection = 3;
+                };
+            };
+            if(direction !== newDirection) {
+                direction = newDirection;
+                send('changeDirection', direction);
+            };
+        });
         document.addEventListener('mouseup', function(event) {
             //var button = ('which' in event) ? event.which : event.button;
             send('leftmouseup', {x:event.clientX - offsetX, y:event.clientY - offsetY});
