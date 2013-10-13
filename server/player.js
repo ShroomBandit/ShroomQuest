@@ -1,16 +1,42 @@
 var extend = require('./extend'),
-    Character = require('./character');
+    Character = require('./character'),
+    inventory = require('./inventory');
     
 module.exports = Player = extend(Character, {
-    init:function(id, server, connection) {
+    init:function(id, server, connection, inventory) {
         var self = this;
         this.id = id;
         this.server = server;
         this.connection = connection;
 
         this.chatQueue = [];
-        this.health = 200;
-        this.maxHealth = 200;
+        this.stats = {
+            agility:20, // move speed
+            attackSpeed:.5, // attack speed
+            dexterity:20, // range damage
+            endurance:20, // health
+            intellect:20, // mana
+            rejuvenation:20, // health rejuv
+            resilience:0, // 
+            strength:20, // melee damage
+            willpower:20 // magic damage
+        };
+        this.maxHealth = this.stats.endurance*5;
+        this.health = this.maxHealth;
+
+        this.slot = {
+            head:false,
+            torso:false,
+            legs:false,
+            feet:false,
+            hands:false,
+            neck:false,
+            ring1:false,
+            ring2:false,
+            weapon:false,
+            shield:false
+        };
+        
         this.keys = {
             'w':false,
             'a':false,
@@ -88,6 +114,21 @@ module.exports = Player = extend(Character, {
         };
     },
 
+    equip:function(itemName) {
+        item = inventory.query({name:itemName});
+        if(item) {
+            if(this.slot[item.type]) {
+                this.unequip(item.name);
+            };
+            this.slot[item.type] = item;
+            for(stat in item.stats) {
+                this.stats[stat] += item.stats[stat];
+            };
+        }else{
+            console.log('item '+itemName+' not found')
+        };
+    },
+
     registerHit:function(projectile) {
         var self = this;
         this.health -= projectile.damage;
@@ -105,6 +146,13 @@ module.exports = Player = extend(Character, {
             this.connection.send(JSON.stringify({
                 event:'death'
             }));
+        };
+    },
+
+    unequip:function(itemName) {
+        item = inventory.query({name:itemName});
+        for(stat in this.slot[item.type].stats) {
+            this.stats[stat] -= this.slot[item.type].stats[stat];
         };
     },
 
