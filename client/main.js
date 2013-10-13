@@ -1,20 +1,21 @@
-module.define('main', function() {
+spider.define('main', function() {
     
-    var character = module.import('character'),
-        map = module.import('map'),
-        model = module.import('model'),
-        ui = module.import('ui'),
-        utils = module.import('utils'),
+    var Character = spider.import('character'),
+        map = spider.import('map'),
+        ui = spider.import('ui'),
+        utils = spider.import('utils'),
 
         lastPos, socket,
         ent = document.getElementById('entities'),
         bg = document.getElementById('background'),
         entctx = ent.getContext('2d'),
         bgctx = bg.getContext('2d'),
+
         gameWindow = {
             x:1200,
             y:700
         },
+        model = {},
 
     openSocket = function(ip) {
         socket = new WebSocket('ws://' + ip);
@@ -48,8 +49,8 @@ module.define('main', function() {
                 // later will be load images
                 map.loadTiles(step);
                 break;
-            case 'players':
-                model.players = data;
+            case 'player':
+                players[data.username].updateAttributes(data.attrubtes);
                 break;
             case 'projectiles':
                 model.projectiles = data;

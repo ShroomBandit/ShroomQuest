@@ -1,4 +1,4 @@
-module.define('ui', function() {
+spider.define('ui', function() {
 	
         // chat vars
     var chat = document.getElementById('chat'),

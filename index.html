@@ -64,9 +64,12 @@
         <input id="username" name="username" type="text"><br>
         <button id="login" type="button">Login</button>
     </div>
-    <script src="/client/module.js"></script>
+    <script src="/client/spider.js"></script>
 	<script>
-        module.execute('main');
+        spider.config({
+            basePath:'/client/'
+        });
+        spider.execute('main');
     </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-module.define('map', function() {
+spider.define('map', function() {
     
     var map, gameWindow, loadCallback,
         tiles, tilesize,
