@@ -1,5 +1,5 @@
-spider.define('map', function() {
-    
+spider.define(function() {
+
     var map, gameWindow,
         tiles, tilesize,
         minimapX = 945,
@@ -61,7 +61,7 @@ spider.define('map', function() {
             };
         };
     },
-    
+
     minimap = function(ctx, playerData) {
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(minimapX, minimapY, minimapWidth, minimapHeight);
@@ -80,5 +80,5 @@ spider.define('map', function() {
         draw:draw,
         minimap:minimap
     };
-    
+
 });

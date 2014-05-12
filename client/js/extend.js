@@ -1,4 +1,4 @@
-spider.define('extend', function() {
+spider.define(function() {
     return function(oldPrototype, extension) {
         // copy the object to inherit to prototype of the new object
         var newPrototype = Object.create(oldPrototype);

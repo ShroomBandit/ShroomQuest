@@ -1,4 +1,4 @@
-spider.define('character', function() {
+spider.define(function() {
 
     return Character = {
         create:function(x, y) {

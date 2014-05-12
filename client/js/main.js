@@ -1,9 +1,9 @@
-spider.define('main', function() {
-    
-    var Character = spider.import('character'),
-        map = spider.import('map'),
-        ui = spider.import('ui'),
-        utils = spider.import('utils'),
+spider.define(function(require) {
+
+    var Character = require('character'),
+        map = require('map'),
+        ui = require('ui'),
+        utils = require('utils'),
 
         ent = document.getElementById('entities'),
         bg = document.getElementById('background'),

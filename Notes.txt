@@ -1,8 +1,0 @@
-Git stuff:
-git pull origin master
-*edit*
-git add . (if applicable)
-git commit -m 'commit description'
-git push origin master
-
-source: http://sirupsen.com/starting-with-git/

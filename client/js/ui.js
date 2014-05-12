@@ -1,5 +1,5 @@
-spider.define('ui', function() {
-	
+spider.define(function() {
+
         // chat vars
     var chat = document.getElementById('chat'),
         chatBar = document.getElementById('chatBar'),
@@ -195,7 +195,7 @@ spider.define('ui', function() {
             chatting = true;
         };
     },
-    
+
     warn = function(message) {
         if(warningMessage !== message) {
             warningMessage = message;

@@ -1,7 +1,7 @@
-spider.define('player', function() {
+spider.define(function(require) {
 
-    var extend = spider.import('extend'),
-        Character = spider.import('character');
+    var extend = require('extend'),
+        Character = require('character');
 
     return Player = extend(Character, {
         create:function(x, y) {

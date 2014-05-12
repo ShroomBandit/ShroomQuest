@@ -1,4 +1,4 @@
-spider.define('utils', function() {
+spider.define(function() {
 
     var fps = '--',
         frameCount = 0,

@@ -1,12 +1,13 @@
-var WebSocketServer = require('./webSocketServer'),
+var webSocketServer = require('./webSocketServer'),
     WorldServer = require('./worldServer'),
 
-    server = new WebSocketServer(__dirname+'/..', 8083),
     world = false;
 
-server.onConnection = function(ws) {
+webSocketServer.init(__dirname+'/../client', 8083),
+
+webSocketServer.onConnection = function(ws) {
     if(!world) {
-        world = new WorldServer(0, server);
+        world = new WorldServer(0, webSocketServer);
     };
     if(!world.running) {
         world.start();
