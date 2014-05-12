@@ -12,8 +12,8 @@ spider.define('main', function() {
 
         socket, username,
         gameWindow = {
-            x:1200,
-            y:700
+            x:ent.width,
+            y:ent.height
         },
         images = {},
         loadedImages = 0,

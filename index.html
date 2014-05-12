@@ -5,19 +5,21 @@
 	<style>
         body{margin:0px; overflow:hidden;}
 
+        #gameWrapper{position:absolute; left:50%; margin-left:-550px;}
+
         #loginDialog{width:150px; height:100px; margin:-50px 0px 0px -75px; position:absolute; top:50%; left:50%; border:2px solid #000000; text-align:center; background-color:#cccccc;}
         #username{width:100px; margin:20px;}
 
         #foreground{position:absolute; left:0px; top:0px; display:none;}
 
-        #chat{width:300px; height:150px; color:#ffffff; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:5px; top:545px;}
+        #chat{width:300px; height:150px; color:#ffffff; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:5px; top:495px;}
         #chat>*{position:absolute; resize:none;}
         #chatDrag{right:0px; top:0px; cursor:move;}
         #chatHistory{width:100%; left:0px; bottom:20px;}
         #chatBar{width:90%; height:18px; color:#ffffff; border:none; background:transparent; left:0px; bottom:0px;}
         #chatBar:focus{border:1px solid #ffffff;}
 
-        #skillbar{position:absolute; top:645px; left:420px; width:500px; height:50px; background-color:#444444; border-radius:5px;}
+        #skillbar{position:absolute; top:595px; left:380px; width:500px; height:50px; background-color:#444444; border-radius:5px;}
         .skill{width:40px; height:40px; display:inline-block; margin:3px 1px; border:2px solid #000000;}
 
         #player{position:absolute; top:5px; left:5px; width:200px; height:30px; background-color:#000000; padding:4px; border-radius:10px;}
@@ -26,7 +28,7 @@
         #resourcebar{width:100%; height:100%; background-color:#325ff0; border-radius:0px 0px 5px 5px;}
         .barText{position:absolute; top:0px; left:0px; width:100%; text-align:center; color:#ffffff;}
 
-        #minimap{position:absolute; top:545px; left:1045px; width:150px; height:150px; background-color:#000000;}
+        #minimap{position:absolute; top:495px; left:945px; width:150px; height:150px; background-color:#000000;}
 
         #warning{position:absolute; top:200px; left:0px; width:1200px; text-align:center; color:#ffffff;}
 
@@ -34,35 +36,37 @@
     </style>
 </head>
 <body>
-	<canvas id='background'></canvas>
-	<canvas id='entities'></canvas>
-    <div id="foreground">
-        <div id="chat">
-            <div id="chatDrag">+</div>
-            <div id="chatHistory"></div>
-            <input id="chatBar" type="text">
-        </div>
-        <div id="skillbar">
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-            <div class="skill"></div>
-        </div>
-        <div id="player">
-            <div class="barWrapper"><div id="healthbar"></div><div class="barText">200/200</div></div>
-            <div class="barWrapper"><div id="resourcebar"></div><div class="barText">50/50</div></div>
-        </div>
-        <div id="warning"></div>
-    </div>
     <div id="loginDialog">
         <input id="username" name="username" type="text"><br>
         <button id="login" type="button">Login</button>
+    </div>
+    <div id="gameWrapper">
+        <canvas id="background" width="1100" height="650"></canvas>
+        <canvas id="entities" width="1100" height="650"></canvas>
+        <div id="foreground">
+            <div id="chat">
+                <div id="chatDrag">+</div>
+                <div id="chatHistory"></div>
+                <input id="chatBar" type="text">
+            </div>
+            <div id="skillbar">
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+                <div class="skill"></div>
+            </div>
+            <div id="player">
+                <div class="barWrapper"><div id="healthbar"></div><div class="barText">200/200</div></div>
+                <div class="barWrapper"><div id="resourcebar"></div><div class="barText">50/50</div></div>
+            </div>
+            <div id="warning"></div>
+        </div>
     </div>
     <script src="/client/spider.js"></script>
 	<script>

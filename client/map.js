@@ -2,8 +2,8 @@ spider.define('map', function() {
     
     var map, gameWindow,
         tiles, tilesize,
-        minimapX = 1045,
-        minimapY = 545,
+        minimapX = 945,
+        minimapY = 495,
         minimapWidth = 150,
         minimapHeight = 150,
 

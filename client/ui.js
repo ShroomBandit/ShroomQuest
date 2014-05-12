@@ -62,6 +62,7 @@ spider.define('ui', function() {
             pressed[key] = false;
         };
         addKeyEventListeners();
+        //addMouseEventListeners(offsetX + (window.innerwidth-offsetX)/2, offsetY);
         addMouseEventListeners(offsetX, offsetY);
         mapWidth = width;
         mapHeight = height;
@@ -115,6 +116,7 @@ spider.define('ui', function() {
                     newDirection = 3;
                 };
             };
+            console.log(relX, relY, newDirection);
             if(direction !== newDirection) {
                 direction = newDirection;
                 send('changeDirection', direction);
