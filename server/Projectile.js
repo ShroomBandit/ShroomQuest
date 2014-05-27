@@ -1,17 +1,18 @@
-var extend = require('./extend'),
-    Entity = require('./entity');
+var Entity = require('./Entity');
 
-module.exports = Projectile = extend(Entity, {
-    init:function(id, owner, startX, startY, destX, destY, velocity, radius, damage) {
-        Entity.call(this, id, 'projectile', startX, startY, radius);
-        this.owner = owner;
-        this.destX = destX;
-        this.destY = destY;
-        this.calculateVelocityComponents(velocity);
-        this.damage = damage;
+module.exports = Entity.extend({
+
+    create: function (id, owner, startX, startY, destX, destY, velocity, radius, damage) {
+        var self = Entity.create.call(this, id, 'projectile', startX, startY, radius);
+        self.owner = owner;
+        self.destX = destX;
+        self.destY = destY;
+        self.calculateVelocityComponents(velocity);
+        self.damage = damage;
+        return self;
     },
 
-    calculateVelocityComponents:function(velocity) {
+    calculateVelocityComponents: function (velocity) {
         var lengthX = this.destX - this.x,
             lengthY = this.destY - this.y,
             angle = Math.atan(lengthY/lengthX);
@@ -23,7 +24,7 @@ module.exports = Projectile = extend(Entity, {
         this.velocityY = Math.round(velocity*Math.sin(angle));
     },
 
-    updatePosition:function(timeDelta) {
+    updatePosition: function (timeDelta) {
         var newX = Math.round(this.x + this.velocityX * timeDelta),
             newY = Math.round(this.y + this.velocityY * timeDelta);
         if((Math.abs(newX - this.destX) < Math.abs(this.x - this.destX)) ||

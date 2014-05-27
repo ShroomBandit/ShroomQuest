@@ -1,30 +1,32 @@
-var extend = require('./extend'),
-    Character = require('./character'),
+var Character = require('./Character'),
     inventory = require('./inventory');
-    
-module.exports = Player = extend(Character, {
-    init:function(id, server, connection, inventory) {
-        var self = this;
-        this.id = id;
-        this.server = server;
-        this.connection = connection;
 
-        this.chatQueue = [];
-        this.stats = {
+module.exports = Character.extend({
+
+    create: function (id, playerData, server, socket) {
+        // normally load position from database...
+        var x = 1000, y = 1000;
+        var self = Character.create.call(this, id, 'player', x, y);
+        self.server = server;
+        self.socket = socket;
+        self.username = playerData.username;
+
+        self.chatQueue = [];
+        self.stats = {
             agility:20, // move speed
             attackSpeed:.5, // attack speed
             dexterity:20, // range damage
             endurance:20, // health
             intellect:20, // mana
             rejuvenation:20, // health rejuv
-            resilience:0, // 
+            resilience:0, //
             strength:20, // melee damage
             willpower:20 // magic damage
         };
-        this.maxHealth = this.stats.endurance*5;
-        this.health = this.maxHealth;
+        self.maxHealth = self.stats.endurance*5;
+        self.health = self.maxHealth;
 
-        this.slot = {
+        self.slot = {
             head:false,
             torso:false,
             legs:false,
@@ -36,34 +38,32 @@ module.exports = Player = extend(Character, {
             weapon:false,
             shield:false
         };
-        
-        this.keys = {
+
+        self.keys = {
             'w':false,
             'a':false,
             's':false,
             'd':false
         };
-        this.velocity = 100;
+        self.velocity = 100;
 
-        this.connection.on('message', function(raw) {
+        self.socket.on('message', function (raw) {
             var msg = JSON.parse(raw),
                 data = msg.data,
                 event = msg.event;
             //console.log(msg);
-            if(typeof self.username === 'undefined' && event !== 'login') {
-                self.connection.send(JSON.stringify({
+
+            if (typeof self.username === 'undefined' && event !== 'login') {
+                self.socket.send(JSON.stringify({
                     event:'loginfirst'
                 }));
-                self.server.removePlayer(this.id);
-            };
+                self.server.removePlayer(self.id);
+            }
+
             switch(event) {
                 case 'login':
-                    self.username = data;
-                    // normally load position from database...
-                    var x = 1000, y = 1000;
-                    Character.call(self, self.id, 'player', x, y);
                     // normally load map from json file...
-                    self.connection.send(JSON.stringify({
+                    self.socket.send(JSON.stringify({
                         event:'loadGameData',
                         data:self.server.map
                     }));
@@ -83,15 +83,15 @@ module.exports = Player = extend(Character, {
                     // in the future, get data from active spell
                     var pos = self.getPosition();
                     var v, r, d;
-                    if(data.skill === 'small') {
+                    if (data.skill === 'small') {
                         v = 200,
                         r = 3,
                         d = 10;
-                    }else if(data.skill === 'big') {
+                    } else if(data.skill === 'big') {
                         v = 100,
                         r = 7,
                         d = 40;
-                    };
+                    }
                     self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, v, r, d);
                     break;
                 case 'leftmouseup':
@@ -100,84 +100,87 @@ module.exports = Player = extend(Character, {
                     break;
             };
         });
-        this.connection.on('close', function() {
+        self.socket.on('close', function() {
             // save data to database
             self.server.removePlayer(self.id);
         });
     },
 
-    emptyChatQueue:function() {
-        if(this.chatQueue.length > 0) {
+    emptyChatQueue: function () {
+        if (this.chatQueue.length > 0) {
             var temp = this.chatQueue;
             this.chatQueue = [];
             return temp;
-        }else{
+        } else {
             return false;
-        };
+        }
     },
 
-    equip:function(itemName) {
+    equip: function (itemName) {
         item = inventory.query({name:itemName});
-        if(item) {
-            if(this.slot[item.type]) {
+        if (item) {
+            if (this.slot[item.type]) {
                 this.unequip(item.name);
-            };
+            }
             this.slot[item.type] = item;
-            for(stat in item.stats) {
+            for (stat in item.stats) {
                 this.stats[stat] += item.stats[stat];
-            };
-        }else{
+            }
+        } else {
             console.log('item '+itemName+' not found')
-        };
+        }
     },
 
-    registerHit:function(projectile) {
+    registerHit: function (projectile) {
         var self = this;
         this.health -= projectile.damage;
         console.log('remove '+projectile.damage+' health from player '+this.id);
-        this.connection.send(JSON.stringify({
-            event:'resourceChange',
-            data:{
-                bar:'health',
-                current:this.health,
-                max:this.maxHealth
+
+        this.socket.send(JSON.stringify({
+            event: 'resourceChange',
+            data: {
+                bar:        'health',
+                current:    this.health,
+                max:        this.maxHealth
             }
         }));
-        if(this.health <= 0) {
+
+        if (this.health <= 0) {
             this.server.removePlayer(this.id);
-            this.connection.send(JSON.stringify({
+            this.socket.send(JSON.stringify({
                 event:'death'
             }));
-        };
+        }
     },
 
-    unequip:function(itemName) {
+    unequip: function (itemName) {
         item = inventory.query({name:itemName});
-        for(stat in this.slot[item.type].stats) {
+        for (stat in this.slot[item.type].stats) {
             this.stats[stat] -= this.slot[item.type].stats[stat];
-        };
+        }
     },
 
-    updatePosition:function(timeDelta) {
+    updatePosition: function (timeDelta) {
         var distance = Math.round((((this.keys.w || this.keys.s) && (this.keys.a && this.keys.d)) ?
             this.velocity*Math.sqrt(2) : this.velocity) * timeDelta),
             prevX = this.x,
             prevY = this.y;
-        if(this.keys.w) {
+        if (this.keys.w) {
             this.y -= distance;
-        };
-        if(this.keys.a) {
+        }
+        if (this.keys.a) {
             this.x -= distance;
-        };
-        if(this.keys.s) {
+        }
+        if (this.keys.s) {
             this.y += distance;
-        };
-        if(this.keys.d) {
+        }
+        if (this.keys.d) {
             this.x += distance;
-        };
-        if(prevX !== this.x || prevY !== this.y) {
+        }
+        if (prevX !== this.x || prevY !== this.y) {
             this.changes.x = this.x;
             this.changes.y = this.y;
-        };
+        }
     }
+
 });

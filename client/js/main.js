@@ -1,16 +1,20 @@
-spider.define(function(require) {
+spider.define(function (require) {
 
-    var Character = require('character'),
-        map = require('map'),
-        ui = require('ui'),
-        utils = require('utils'),
+    var Character   = require('./character'),
+        map         = require('./map'),
+        socket      = require('./socket'),
+        ui          = require('./ui'),
+        utils       = require('./utils'),
 
-        ent = document.getElementById('entities'),
-        bg = document.getElementById('background'),
-        entctx = ent.getContext('2d'),
-        bgctx = bg.getContext('2d'),
+        dialog      = document.getElementById('loginDialog'),
+        loginButton = document.getElementById('login'),
 
-        socket, username,
+        ent     = document.getElementById('entities'),
+        bg      = document.getElementById('background'),
+        entctx  = ent.getContext('2d'),
+        bgctx   = bg.getContext('2d'),
+
+        username,
         gameWindow = {
             x:ent.width,
             y:ent.height
@@ -20,26 +24,29 @@ spider.define(function(require) {
         model = {},
         players = {},
 
-    checkImageLoad = function() {
+        loginEvents,
+        worldEvents;
+
+    function checkImageLoad() {
         loadedImages++;
-        if(loadedImages === 21) {
+        if (loadedImages === 21) {
             players[username] = Character.create();
             players[username].x = 1000;
             players[username].y = 1000;
             step();
-        };
-    },
+        }
+    }
 
-    loadImages = function() {
+    function loadImages() {
         images.map = {};
-        for(var i = 0; i < 16; i++) {
-            if(i !== 5 && i !== 10) {
+        for (var i = 0; i < 16; i++) {
+            if (i !== 5 && i !== 10) {
                 var bin = ('000' + i.toString(2)).slice(-4);
                 images.map[bin] = new Image();
                 images.map[bin].onload = checkImageLoad;
                 images.map[bin].src = '/images/tiles/' + bin + '.png';
-            };
-        };
+            }
+        }
         images.character = {};
         images.character.body = new Image();
         images.character.body.onload = checkImageLoad;
@@ -62,57 +69,38 @@ spider.define(function(require) {
         images.character.feet = new Image();
         images.character.feet.onload = checkImageLoad;
         images.character.feet.src = '/images/sprites/png/walkcycle/FEET_shoes_brown.png';
-    },
+    }
 
-    openSocket = function(ip) {
-        socket = new WebSocket('ws://' + ip);
-        socket.onopen = function() {
-            console.log('Socket opened!');
-            sendMessage('login', username);
-        };
-        socket.onmessage = function(raw) {
-            var msg = JSON.parse(raw.data);
-            if(!Array.isArray(msg)) {
-                processMessage(msg.event, msg.data);
-            }else{
-                for(var i = 0, ilen = msg.length; i < ilen; i++) {
-                    processMessage(msg[i].event, msg[i].data);
-                };
-            };
-        };
-        socket.onclose = function() {
-            console.log('Socket closed!');
-        };
-    },
+    function printWorldList(list) {
+        var fragment = document.createDocumentFragment(),
+            selectElement = document.getElementById('worldList');
 
-    processMessage = function(event, data) {
-        switch(event) {
-            case 'chat':
-                ui.addToChatHistory(data);
-                break;
-            case 'loadGameData':
-                map.config(data, gameWindow.x, gameWindow.y);
-                ui.init(sendMessage, gameWindow.x/2, gameWindow.y/2, data.width, data.height);
-                loadImages();
-                break;
-            case 'player':
-                players[data.username].updateAttributes(data.attributes);
-                break;
-            case 'projectiles':
-                model.projectiles = data;
-                break;
-            case 'resourceChange':
-                ui.setResource(data);
-                break;
-            case 'death':
-                location.reload();
-                break;
-        };
-    },
+        list.forEach(function (world) {
+            var option = document.createElement('option'),
+                text = world.id;
 
-    render = function() {
+            if (world.isFull) {
+                text += ' (full)';
+                option.disabled = true;
+            } else {
+                option.value = world.id;
+            }
+
+            option.textContent = text;
+            fragment.appendChild(option);
+        });
+
+        selectElement.innerHTML = '';
+        selectElement.appendChild(fragment);
+        loginButton.disabled = false;
+    }
+
+    function render() {
         // do not continue execution if the model has not been written yet
-        if(!(username in players)) return false;
+        if (!(username in players)) {
+            return false;
+        }
+
         var me = players[username].getPosition();
 
         // redraw background
@@ -122,33 +110,54 @@ spider.define(function(require) {
         entctx.clearRect(0, 0, gameWindow.x, gameWindow.y);
         utils.framerate(entctx, gameWindow.x - 100, 20);
         players[username].draw(entctx, gameWindow.x/2, gameWindow.y/2, images.character);
-        for(var player in players) {
-            if(player !== username) {
+
+        for (var player in players) {
+            if (player !== username) {
                 players[player].draw(entctx, players[player].x - me.x + gameWindow.x/2, players[player].y - me.y + gameWindow.y/2, images.character);
-            };
-        };
-        if('projectiles' in model) {
-            for(var i = 0, ilen = model.projectiles.length; i < ilen; i++) {
+            }
+        }
+
+        if ('projectiles' in model) {
+            for (var i = 0; i < model.projectiles.length; i++) {
                 entctx.fillStyle = 'rgba(0,0,0,1)';
                 entctx.beginPath();
                 entctx.arc(model.projectiles[i].x - me.x + gameWindow.x/2, model.projectiles[i].y - me.y + gameWindow.y/2, model.projectiles[i].radius, 0, Math.PI*2, false);
                 entctx.closePath();
                 entctx.fill();
-            };
-        };
+            }
+        }
         map.minimap(entctx, model.players);
-    },
+    }
 
-    sendMessage = function(event, data) {
-        socket.send(JSON.stringify({
-            event:event,
-            data:data
-        }));
-    },
-
-    step = function() {
+    function step() {
         render();
         requestAnimationFrame(step);
+    }
+
+    loginEvents = {
+        authSuccess: function (port) {
+            socket.reset().register(worldEvents).open(window.location.hostname + ':' + port);
+        },
+        worldList: printWorldList
+    };
+
+    worldEvents = {
+        chat: ui.addToChatHistory,
+        death: location.reload,
+        loadGameData: function (data) {
+            loadImages();
+            dialog.style.display = 'none';
+            document.getElementById('gameWrapper').style.display = 'block';
+            map.config(data, gameWindow.x, gameWindow.y);
+            ui.init(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2, data.width, data.height);
+        },
+        player: function (data) {
+            players[data.username].updateAttributes(data.attributes);
+        },
+        projectiles: function (data) {
+            model.projectiles = data;
+        },
+        resourceChange: ui.setResource
     };
 
     ent.width = gameWindow.x;
@@ -156,12 +165,12 @@ spider.define(function(require) {
     bg.width = gameWindow.x;
     bg.height = gameWindow.y;
 
-    document.getElementById('login').addEventListener('click', function() {
-        var dialog = document.getElementById('loginDialog');
-        username = document.getElementById('username').value;
-        dialog.parentNode.removeChild(dialog);
-        document.getElementById('foreground').style.display = 'block';
-        openSocket(location.host);
-    });
+    socket.register(loginEvents).open(location.host);
 
+    loginButton.addEventListener('click', function() {
+        socket.send('login', {
+            username:   dialog.elements.username.value,
+            world:      dialog.elements.worldList.value
+        });
+    });
 });

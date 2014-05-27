@@ -1,10 +1,12 @@
-spider.define(function() {
+spider.define(function (require) {
+
+    var socket = require('./socket'),
 
         // chat vars
-    var chat = document.getElementById('chat'),
-        chatBar = document.getElementById('chatBar'),
+        chat        = document.getElementById('chat'),
+        chatBar     = document.getElementById('chatBar'),
         chatHistory = document.getElementById('chatHistory'),
-        chatting = false,
+        chatting    = false,
 
         // key event vars
         keymap = {
@@ -28,17 +30,18 @@ spider.define(function() {
         pressed = {},
 
         // minimap vars
-        mapWidth, mapHeight,
+        mapWidth,
+        mapHeight,
         minimap = document.getElementById('minimap'),
 
         // player health and resource bar vars
         bars = {
-            health:document.getElementById('healthbar'),
-            resource:document.getElementById('resourcebar')
+            health:     document.getElementById('healthbar'),
+            resource:   document.getElementById('resourcebar')
         },
         text = {
-            health:bars.health.nextSibling,
-            resource:bars.resource.nextSibling
+            health:     bars.health.nextSibling,
+            resource:   bars.resource.nextSibling
         },
 
         // skill vars
@@ -51,13 +54,9 @@ spider.define(function() {
         // warning box vars
         warningMessage,
         warningBox = document.getElementById('warning'),
-        warningTimeout = false,
+        warningTimeout = false;
 
-        // send method from socket will be passed in init()
-        send,
-
-    init = function(sender, offsetX, offsetY, width, height) {
-        send = sender;
+    function init(offsetX, offsetY, width, height) {
         for(var key in keymap) {
             pressed[key] = false;
         };
@@ -67,83 +66,92 @@ spider.define(function() {
         mapWidth = width;
         mapHeight = height;
         selectSkill(1);
-    },
+    }
 
-    addKeyEventListeners = function() {
-        document.addEventListener('keydown', function(event){
-            if(event.keyCode in keymap && !pressed[event.keyCode]) {
+    function addKeyEventListeners() {
+        document.addEventListener('keydown', function (event){
+            if (event.keyCode in keymap && !pressed[event.keyCode]) {
                 var key = keymap[event.keyCode];
-                if(key === 'enter') {
+
+                // The enter key will trigger the chat window.
+                if (key === 'enter') {
                     event.preventDefault();
                     useChat();
-                }else if(!chatting) {
+                } else if (!chatting) {
                     pressed[event.keyCode] = true;
-                    if('wasd'.indexOf(key) !== -1) {
+                    // Send movement key notifications to the server.
+                    if ('wasd'.indexOf(key) !== -1) {
                         send('keydown', key);
-                    }else if(typeof key === 'number') {
+                    } else if (typeof key === 'number') {
                         selectSkill(key);
-                    };
-                };
-            };
+                    }
+                }
+            }
         });
-        document.addEventListener('keyup', function(event){
-            if(event.keyCode in keymap && !chatting) {
-                pressed[event.keyCode] = false;
-                if('wasd'.indexOf(keymap[event.keyCode]) !== -1) {
-                    send('keyup', keymap[event.keyCode]);
-                };
-            };
-        });
-    },
 
-    addMouseEventListeners = function(offsetX, offsetY) {
-        document.addEventListener('mousemove', function(event) {
+        document.addEventListener('keyup', function (event){
+            // Disregard keyup events when chatting.
+            if (event.keyCode in keymap && !chatting) {
+                pressed[event.keyCode] = false;
+
+                // Send movement key notifications to the server.
+                if ('wasd'.indexOf(keymap[event.keyCode]) !== -1) {
+                    send('keyup', keymap[event.keyCode]);
+                }
+            }
+        });
+    }
+
+    function addMouseEventListeners(offsetX, offsetY) {
+        document.addEventListener('mousemove', function (event) {
             var newDirection,
                 relX = event.clientX - offsetX,
                 relY = event.clientY - offsetY;
-            if(relX >= relY) {
+
+            if (relX >= relY) {
                 // bottom-right side of line y = x
-                if(relX >= Math.abs(relY)) {
+                if (relX >= Math.abs(relY)) {
                     newDirection = 4;
-                }else{
+                } else {
                     newDirection = 1;
-                };
-            }else{
+                }
+            } else {
                 // top-left side of line y = x
-                if(Math.abs(relX) >= relY) {
+                if (Math.abs(relX) >= relY) {
                     newDirection = 2;
-                }else{
+                } else {
                     newDirection = 3;
-                };
-            };
+                }
+            }
             console.log(relX, relY, newDirection);
-            if(direction !== newDirection) {
+            if (direction !== newDirection) {
                 direction = newDirection;
-                send('changeDirection', direction);
-            };
+                //send('changeDirection', direction);
+            }
         });
-        document.addEventListener('mouseup', function(event) {
+
+        document.addEventListener('mouseup', function (event) {
             //var button = ('which' in event) ? event.which : event.button;
             send('leftmouseup', {x:event.clientX - offsetX, y:event.clientY - offsetY});
         });
-        document.addEventListener('mousedown', function(event) {
-            if(skills[selectedSkill]) {
+        document.addEventListener('mousedown', function (event) {
+            if (skills[selectedSkill]) {
                 send('leftmousedown', {
                     x:event.clientX - offsetX,
                     y:event.clientY - offsetY,
                     skill:skills[selectedSkill]
                 });
-            }else{
+            } else {
                 warn('That ability is not equipped.');
-            };
+            }
         });
-        document.addEventListener('contextmenu', function(event) {
+        document.addEventListener('contextmenu', function (event) {
             event.preventDefault();
             send('rightclick', {x:event.clientX - offsetX, y:event.clientY - offsetY});
         });
-    },
+    }
 
-    addToChatHistory = function(messages) {
+    function addToChatHistory(messages) {
         var frag = document.createDocumentFragment();
         for(var i = 0, ilen = messages.length; i < ilen; i++) {
             var div = document.createElement('div');
@@ -151,36 +159,36 @@ spider.define(function() {
             frag.appendChild(div);
         };
         chatHistory.appendChild(frag);
-    },
+    }
 
-    createMinimapPlayer = function(username) {
+    function createMinimapPlayer(username) {
         var ele = document.createElement('div');
         ele.id = username;
         minimap.appendChild(ele);
-    },
+    }
 
-    keyPress = function(key) {
+    function keyPress(key) {
         if(typeof key === 'number') {
             selectSkill(key);
         }else{
         };
-    },
+    }
 
-    selectSkill = function(number) {
+    function selectSkill(number) {
         if(typeof selectedSkill === 'number') {
             skillbar.children[selectedSkill].style.borderColor = '#000000';
         };
         selectedSkill = (number === 0) ? 9 : number-1;
         skillbar.children[selectedSkill].style.borderColor = '#f0e807';
-    },
+    }
 
-    setResource = function(data) {
+    function setResource(data) {
         console.log(data);
         bars[data.bar].style.width = Math.round(data.current/data.max*100)+'%';
         text[data.bar].innerHTML = data.current+'/'+data.max;
-    },
+    }
 
-    useChat = function() {
+    function useChat() {
         if(document.activeElement === chatBar) {
             if(chatBar.value !== '') {
                 send('chat', chatBar.value);
@@ -194,9 +202,9 @@ spider.define(function() {
             chatBar.style.display = 'block';
             chatting = true;
         };
-    },
+    }
 
-    warn = function(message) {
+    function warn(message) {
         if(warningMessage !== message) {
             warningMessage = message;
         };
@@ -209,12 +217,12 @@ spider.define(function() {
             warn('');
             warningTimeout = false;
         }, 2000);
-    };
+    }
 
 	return {
         addToChatHistory:addToChatHistory,
         init:init,
         setResource:setResource
-	};
+	}
 
 });

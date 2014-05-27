@@ -5,12 +5,12 @@
 	<style>
         body{margin:0px; overflow:hidden;}
 
-        #gameWrapper{position:absolute; left:50%; margin-left:-550px;}
+        #gameWrapper{position:absolute; left:50%; margin-left:-550px; display:none;}
 
         #loginDialog{width:150px; height:100px; margin:-50px 0px 0px -75px; position:absolute; top:50%; left:50%; border:2px solid #000000; text-align:center; background-color:#cccccc;}
-        #username{width:100px; margin:20px;}
+        #loginDialog > input {width:100px; margin:20px;}
 
-        #foreground{position:absolute; left:0px; top:0px; display:none;}
+        #foreground{position:absolute; left:0px; top:0px;}
 
         #chat{width:300px; height:150px; color:#ffffff; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:5px; top:495px;}
         #chat>*{position:absolute; resize:none;}
@@ -36,10 +36,11 @@
     </style>
 </head>
 <body>
-    <div id="loginDialog">
-        <input id="username" name="username" type="text"><br>
-        <button id="login" type="button">Login</button>
-    </div>
+    <form id="loginDialog">
+        <input name="username" type="text"><br>
+        <select id="worldList" name="world"><option></option></select>
+        <button id="login" type="button" disabled>Login</button>
+    </form>
     <div id="gameWrapper">
         <canvas id="background" width="1100" height="650"></canvas>
         <canvas id="entities" width="1100" height="650"></canvas>
