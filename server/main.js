@@ -1,51 +1,44 @@
-var WebServer       = require('./WebServer'),
+var createSync      = require('../shared/Sync.js'),
+    WebServer       = require('./WebServer'),
     WebSocketServer = require('./WebSocketServer'),
     worldManager    = require('./worldManager'),
 
-    webServer;
+    webServer = WebServer.create(__dirname + '/..', 8080);
 
-function handleMessage(event, data, respond, socket) {
-    var playerData = {},
-        world;
 
-    switch (event) {
-        case 'login':
+//webServer.rewrite(/^(?!\/shared)(.*)$/, '/client$1');
+//webServer.rewrite(/^$/, '/client/index.html');
+
+WebSocketServer.create({server: webServer.http})
+    .on('connection', function (socket) {
+        var Sync = createSync(socket),
+
+            loginStatus = Sync.create('loginStatus'),
+            port        = Sync.create('port'),
+            worldList   = Sync.create('worldList', worldManager.getWorldList());
+
+        Sync.create('loginData').change(function (data) {
+            data.username;
+            data.world;
             // authenticate
             if (false) {
-                respond('loginFailed')
+                loginStatus.set('Login failed.');
             } else {
-                // get info from database...
+                //playerData = data from database...
+                playerData = {};
                 playerData.username = data.username;
                 if (worldManager.assignPlayer(data.world, playerData, socket.upgradeReq.connection.remoteAddress)) {
                     world = worldManager.getWorld(data.world);
                     if (world !== null) {
-                        respond('authSuccess', world.server.port);
+                        port.set(world.server.port);
                         socket.close();
                     } else {
-                        respond('error', 'internal error')
+                        // Fix this...
+                        console.log('Internal error: could not get world. <server/main.js:27>')
                     }
                 } else {
-                    respond('worldList', worldManager.getWorldList());
+                    worldList.set(worldManager.getWorldList());
                 }
             }
-            break;
-    }
-}
-
-webServer = WebServer.create(__dirname + '/../client', 8080);
-WebSocketServer.create({server: webServer.http})
-    .on('connection', function (socket) {
-        function respond (event, data) {
-            socket.send(JSON.stringify({
-                event:  event,
-                data:   data
-            }));
-        }
-
-        respond('worldList', worldManager.getWorldList());
-
-        socket.on('message', function(json) {
-            var msg = JSON.parse(json);
-            handleMessage(msg.event, msg.data, respond, socket);
         });
     });

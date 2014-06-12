@@ -1,12 +1,7 @@
 spider.define(function (require) {
 
-    var socket = require('./socket'),
-
-        // chat vars
-        chat        = document.getElementById('chat'),
-        chatBar     = document.getElementById('chatBar'),
-        chatHistory = document.getElementById('chatHistory'),
-        chatting    = false,
+    var chat    = require('./chat'),
+        Sync    = require('../../../shared/Sync'),
 
         // key event vars
         keymap = {
@@ -43,6 +38,7 @@ spider.define(function (require) {
             health:     bars.health.nextSibling,
             resource:   bars.resource.nextSibling
         },
+        resourceChange = Sync('resources').change(setResource),
 
         // skill vars
         selectedSkill,
@@ -76,8 +72,8 @@ spider.define(function (require) {
                 // The enter key will trigger the chat window.
                 if (key === 'enter') {
                     event.preventDefault();
-                    useChat();
-                } else if (!chatting) {
+                    chat.use();
+                } else if (!chat.isChatting()) {
                     pressed[event.keyCode] = true;
                     // Send movement key notifications to the server.
                     if ('wasd'.indexOf(key) !== -1) {
@@ -91,7 +87,7 @@ spider.define(function (require) {
 
         document.addEventListener('keyup', function (event){
             // Disregard keyup events when chatting.
-            if (event.keyCode in keymap && !chatting) {
+            if (event.keyCode in keymap && !chat.isChatting()) {
                 pressed[event.keyCode] = false;
 
                 // Send movement key notifications to the server.
@@ -151,16 +147,6 @@ spider.define(function (require) {
         });
     }
 
-    function addToChatHistory(messages) {
-        var frag = document.createDocumentFragment();
-        for(var i = 0, ilen = messages.length; i < ilen; i++) {
-            var div = document.createElement('div');
-            div.innerHTML = messages[i];
-            frag.appendChild(div);
-        };
-        chatHistory.appendChild(frag);
-    }
-
     function createMinimapPlayer(username) {
         var ele = document.createElement('div');
         ele.id = username;
@@ -188,22 +174,6 @@ spider.define(function (require) {
         text[data.bar].innerHTML = data.current+'/'+data.max;
     }
 
-    function useChat() {
-        if(document.activeElement === chatBar) {
-            if(chatBar.value !== '') {
-                send('chat', chatBar.value);
-                chatBar.value = '';
-            };
-            document.body.focus();
-            chatBar.style.display = 'none';
-            chatting = false;
-        }else{
-            chatBar.focus();
-            chatBar.style.display = 'block';
-            chatting = true;
-        };
-    }
-
     function warn(message) {
         if(warningMessage !== message) {
             warningMessage = message;
@@ -220,9 +190,7 @@ spider.define(function (require) {
     }
 
 	return {
-        addToChatHistory:addToChatHistory,
-        init:init,
-        setResource:setResource
+        init: init
 	}
 
 });

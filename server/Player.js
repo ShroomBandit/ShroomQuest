@@ -1,14 +1,16 @@
-var Character = require('./Character'),
-    inventory = require('./inventory');
+var Character   = require('./Character'),
+    inventory   = require('./inventory');
 
 module.exports = Character.extend({
 
-    create: function (id, playerData, server, socket) {
+    create: function (id, playerData, server, Sync) {
         // normally load position from database...
         var x = 1000, y = 1000;
+
         var self = Character.create.call(this, id, 'player', x, y);
+
         self.server = server;
-        self.socket = socket;
+        self.Sync = Sync;
         self.username = playerData.username;
 
         self.chatQueue = [];
@@ -47,63 +49,33 @@ module.exports = Character.extend({
         };
         self.velocity = 100;
 
-        self.socket.on('message', function (raw) {
-            var msg = JSON.parse(raw),
-                data = msg.data,
-                event = msg.event;
-            //console.log(msg);
-
-            if (typeof self.username === 'undefined' && event !== 'login') {
-                self.socket.send(JSON.stringify({
-                    event:'loginfirst'
-                }));
-                self.server.removePlayer(self.id);
-            }
-
-            switch(event) {
-                case 'login':
-                    // normally load map from json file...
-                    self.socket.send(JSON.stringify({
-                        event:'loadGameData',
-                        data:self.server.map
-                    }));
-                    break;
-                case 'chat':
-                    self.chatQueue.push(data);
-                    break;
-                case 'keydown':
-                    self.keys[data] = true;
-                    break;
-                case 'keyup':
-                    self.keys[data] = false;
-                    break;
-                case 'changeDirection':
-                    self.changeDirection(data);
-                case 'leftmousedown':
-                    // in the future, get data from active spell
-                    var pos = self.getPosition();
-                    var v, r, d;
-                    if (data.skill === 'small') {
-                        v = 200,
-                        r = 3,
-                        d = 10;
-                    } else if(data.skill === 'big') {
-                        v = 100,
-                        r = 7,
-                        d = 40;
-                    }
-                    self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, v, r, d);
-                    break;
-                case 'leftmouseup':
-                    break;
-                case 'rightclick':
-                    break;
-            };
+        Sync.create('chatQueue').change(self.chatQueue.push);
+        Sync.create('keydown').change(function (data) {
+            self.keys[data] = true;
         });
-        self.socket.on('close', function() {
+        Sync.create('keyup').change(function (data) {
+            self.keys[data] = false;
+        });
+        Sync.create('changeDirection').change(self.changeDirection); // not implemented yet
+        Sync.create('leftmousedown').change(function (data) {
+            // in the future, get data from active spell
+            var pos = self.getPosition();
+            var v, r, d;
+            if (data.skill === 'small') {
+                v = 200,
+                r = 3,
+                d = 10;
+            } else if(data.skill === 'big') {
+                v = 100,
+                r = 7,
+                d = 40;
+            }
+            self.server.addProjectile(self.id, pos.x, pos.y, pos.x+data.x, pos.y+data.y, v, r, d);
+        });
+        /*self.socket.on('close', function() {
             // save data to database
             self.server.removePlayer(self.id);
-        });
+        });*/
     },
 
     emptyChatQueue: function () {

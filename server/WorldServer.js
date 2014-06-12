@@ -1,37 +1,16 @@
-var generateMap     = require('./generateMap'),
+var createSync      = require('../shared/Sync'),
+    generateMap     = require('./generateMap'),
 	Player          = require('./Player'),
     Projectile      = require('./Projectile'),
     WebSocketServer = require('./WebSocketServer');
 
 module.exports = {
 
-    players:            [],
-    projectiles:        [],
-    running:            false,
-    staged:             {},
-    updatesPerSecond:   60,
-
     create: function (id) {
         var self = Object.create(this);
+
         self.id = id;
         self.server = WebSocketServer.create({port: 8081 + id});
-
-        self.server.on('connection', function (socket) {
-            var data,
-                ip = socket.upgradeReq.connection.remoteAddress;
-
-            if (ip in self.staged) {
-                data = self.staged[ip];
-                clearTimeout(data.timeout);
-                self.players[data.id] = Player.create(data.id, data.playerData, self, socket);
-                delete self.staged[ip];
-
-                socket.send(JSON.stringify({
-                    event:  'loadGameData',
-                    data:   self.map
-                }));
-            }
-        });
 
         // a temporary measure until we code individual maps
         self.map = {
@@ -40,6 +19,30 @@ module.exports = {
             tilesize:40
         };
         self.map.tiles = generateMap(self.map.width/self.map.tilesize, self.map.height/self.map.tilesize)
+
+        self.players = [];
+        self.projectiles = [];
+        self.running = false;
+        self.staged = {};
+        self.updatesPerSecond = 60;
+
+        self.server.on('connection', function (socket) {
+            var data, Sync,
+                ip = socket.upgradeReq.connection.remoteAddress;
+
+            if (ip in self.staged) {
+                data = self.staged[ip];
+                clearTimeout(data.timeout);
+
+                Sync = createSync(socket, {stage: true});
+                Sync.create('map', self.map);
+
+                self.players[data.id] = Player.create(data.id, data.playerData, self, Sync);
+                delete self.staged[ip];
+            } else {
+                socket.close();
+            }
+        });
 
         return self;
     },

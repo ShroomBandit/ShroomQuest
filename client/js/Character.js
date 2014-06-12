@@ -1,7 +1,8 @@
-spider.define(function() {
+spider.define(function () {
 
-    return Character = {
-        create:function(x, y) {
+    return {
+
+        create: function (x, y) {
             var self = Object.create(this);
             self.x = x;
             self.y = y;
@@ -14,7 +15,7 @@ spider.define(function() {
             return self;
         },
 
-        draw:function(ctx, x, y, images) {
+        draw: function (ctx, x, y, images) {
             this.updateSprite();
             ctx.drawImage(images.body, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
             ctx.drawImage(images.feet, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
@@ -25,31 +26,33 @@ spider.define(function() {
             ctx.drawImage(images.head, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
         },
 
-        getPosition:function() {
+        getPosition: function () {
             return {
-                x:this.x,
-                y:this.y
-            };
+                x: this.x,
+                y: this.y
+            }
         },
 
-        updateAttributes:function(attributes) {
+        updateAttributes: function (attributes) {
             for(var attr in attributes) {
                 this[attr] = attributes[attr];
             };
         },
 
-        updateSprite:function() {
+        updateSprite: function () {
             var time = Date.now();
-            if(time - this.animationDelay > this.animationTime) {
-                if(this.prevX !== this.x || this.prevY !== this.y) {
+            if (time - this.animationDelay > this.animationTime) {
+                if (this.prevX !== this.x || this.prevY !== this.y) {
                     this.animationStep = (this.animationStep % 9) + 1;
                     this.prevX = this.x;
                     this.prevY = this.y;
-                }else if(this.animationStep !== 1) {
+                } else if (this.animationStep !== 1) {
                     this.animationStep = 1;
-                };
+                }
                 this.animationTime = time;
-            };
+            }
         }
-    };
+
+    }
+
 });
