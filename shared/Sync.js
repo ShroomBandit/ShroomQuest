@@ -50,13 +50,22 @@ spider.define(function () {
 
         _callSetter: function (data) {
             if ('prop' in data) {
-                this._setters[data.prop](data.value);
+                if(data.prop in this._setters) {
+                    this._setters[data.prop](data.value);
+                } else {
+                    // TODO: create silently
+                    this.create(data.prop, data.value);
+                }
             } else {
                 throw new Error('Received bad message: ' + JSON.stringify(data));
             }
         },
 
         create: function (prop, value) {
+            if(prop in this._setters) {
+                throw new Error('Property ' + prop + ' already exists.');
+            }
+
             var self = Object.create(interface);
 
             // Initialize all the "private" variables.
@@ -81,13 +90,11 @@ spider.define(function () {
         },
 
         flush: function (options) {
-            var string = JSON.stringify(this._staged);
-            this._staged = [];
-
             if (options !== undefined && options.doNotSend === true) {
-                return string;
+                return JSON.stringify(this._staged);
             } else {
-                send(string)
+                this._send(this._staged);
+                this._staged = [];
             }
         },
 
@@ -95,7 +102,7 @@ spider.define(function () {
             var data = JSON.parse(raw.data);
 
             if (Array.isArray(data)) {
-                data.forEach(callSetter)
+                data.forEach(this._callSetter.bind(this))
             } else {
                 this._callSetter(data);
             }

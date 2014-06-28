@@ -1,11 +1,11 @@
 spider.define(function (require) {
 
-    var Sync    = require('../../shared/Sync'),
+    var Sync    = require('../../../shared/Sync'),
 
         chatBar     = document.getElementById('chatBar'),
         chatHistory = document.getElementById('chatHistory'),
         chatting    = false,
-        newChats    = Sync('newChats').change(addToHistory);
+        newChats    = Sync.create('newChats').change(addToHistory);
 
     function addToHistory(messages) {
         var div,

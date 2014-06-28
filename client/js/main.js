@@ -1,9 +1,12 @@
 spider.define(function (require) {
 
     var Character   = require('./Character'),
+        keys        = require('./keys'),
         loader      = require('./loader'),
         map         = require('./map'),
+        mouse       = require('./mouse'),
         Sync        = require('../../shared/Sync'),
+        ui          = require('./ui/main'),
         utils       = require('./utils'),
 
         dialog      = document.getElementById('loginDialog'),
@@ -113,8 +116,10 @@ spider.define(function (require) {
         loader.loadImages(function () {
             players[loginData.get().username] = Character.create(1000, 1000);
             document.getElementById('gameWrapper').style.display = 'block';
-            map.config(gameWindow);
-            //ui.init(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2, data.width, data.height);
+            map.config(gameWindow.x, gameWindow.y);
+            ui.init();
+            mouse.init(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2)
+            keys.init();
             step();
         });
     });

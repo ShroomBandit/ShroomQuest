@@ -36,6 +36,7 @@ module.exports = {
 
                 Sync = createSync(socket, {stage: true});
                 Sync.create('map', self.map);
+                Sync.flush();
 
                 self.players[data.id] = Player.create(data.id, data.playerData, self, Sync);
                 delete self.staged[ip];
@@ -108,7 +109,7 @@ module.exports = {
 
         this.running = setInterval(function() {
             var current = Date.now();
-            self.update((current - previous) / 1000);
+            //self.update((current - previous) / 1000);
             previous = current;
         }, self.updatesPerSecond);
     },

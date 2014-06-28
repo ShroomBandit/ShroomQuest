@@ -9,15 +9,15 @@ spider.define(function (require) {
         minimapWidth = 150,
         minimapHeight = 150;
 
-    function config(gameWindow) {
+    function config(width, height) {
         gameWindow = {
             pixels: {
-                x: gameWindow.x,
-                y: gameWindow.y
+                x: width,
+                y: height
             },
             tiles: {
-                x: Math.ceil(gameWindow.x/tilesize),
-                y: Math.ceil(gameWindow.y/tilesize)
+                x: Math.ceil(width / tilesize),
+                y: Math.ceil(height / tilesize)
             }
         };
     }
@@ -26,11 +26,12 @@ spider.define(function (require) {
         if (tiles === undefined || tiles.length === 0) {
             return false;
         }
+        
         // determine the x and y coordinates of the top left corner
         var canvasOrigin = {
-                pixels:{
-                    x:posX - gameWindow.pixels.x / 2,
-                    y:posY - gameWindow.pixels.y / 2
+                pixels: {
+                    x: posX - gameWindow.pixels.x / 2,
+                    y: posY - gameWindow.pixels.y / 2
                 }
             };
 
