@@ -1,3 +1,5 @@
+spider.alias('../../shared/Sync', 'Sync');
+
 spider.define(function (require) {
 
     var Character   = require('./Character'),
@@ -5,7 +7,7 @@ spider.define(function (require) {
         loader      = require('./loader'),
         map         = require('./map'),
         mouse       = require('./mouse'),
-        Sync        = require('../../shared/Sync'),
+        Sync        = require('Sync'),
         ui          = require('./ui/main'),
         utils       = require('./utils'),
 
@@ -106,11 +108,9 @@ spider.define(function (require) {
     bg.width = gameWindow.x;
     bg.height = gameWindow.y;
 
-    Sync.init(window.location.host);
+    Sync.create('worldList', [], {watch: true, silently: true}).on('change', printWorldList);
 
-    Sync.create('worldList').change(printWorldList);
-
-    Sync.create('port').change(function (port) {
+    Sync.create('port', undefined, {watch: true, silently: true}).on('change', function (port) {
         Sync.init(window.location.hostname + ':' + port);
         dialog.style.display = 'none';
         loader.loadImages(function () {
@@ -124,7 +124,7 @@ spider.define(function (require) {
         });
     });
 
-    Sync.create('loginStatus').change(function (status) {
+    Sync.create('loginStatus', '', {watch: true, silently: true}).on('change', function (status) {
         console.log('login: ' + status);
     });
 
@@ -136,4 +136,6 @@ spider.define(function (require) {
             world:      dialog.elements.worldList.value
         });
     });
+
+    Sync.init(window.location.host);
 });

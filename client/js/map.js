@@ -1,6 +1,6 @@
 spider.define(function (require) {
 
-    var Sync = require('../../shared/Sync'),
+    var Sync = require('Sync'),
 
         map, gameWindow,
         tiles, tilesize,
@@ -70,7 +70,7 @@ spider.define(function (require) {
         ctx.fill();
     }
 
-    Sync.create('map').change(function (mapData) {
+    Sync.create('map', {}, {watch: true, silently: true}).on('change', function (mapData) {
         console.log(mapData);
         // mapData must have the properties:
         //   width, height, tiles, tilesize

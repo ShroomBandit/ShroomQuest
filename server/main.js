@@ -17,7 +17,7 @@ WebSocketServer.create({server: webServer.http})
             port        = Sync.create('port'),
             worldList   = Sync.create('worldList', worldManager.getWorldList());
 
-        Sync.create('loginData').change(function (data) {
+        Sync.create('loginData', {}, {watch: true, silently: true}).on('change', function (data) {
             data.username;
             data.world;
             // authenticate
@@ -34,7 +34,7 @@ WebSocketServer.create({server: webServer.http})
                         socket.close();
                     } else {
                         // Fix this...
-                        console.log('Internal error: could not get world. <server/main.js:27>')
+                        console.log('Internal error: could not get world. <server/main.js:37>')
                     }
                 } else {
                     worldList.set(worldManager.getWorldList());

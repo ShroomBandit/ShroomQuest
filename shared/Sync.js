@@ -1,31 +1,21 @@
 if (typeof spider === 'undefined') {
-    spider = {
+    var spider = {
         define: function (constructor) {
-            module.exports = constructor();
+            module.exports = constructor(require);
         }
     }
 }
 
-spider.define(function () {
+spider.define(function (require) {
 
-    var isBrowser = typeof window !== 'undefined',
+    var EventEmitter    = require('./EventEmitter'),
+        Extendable      = require('./Extendable'),
+    
+        Sync,
 
-    interface = {
+        isBrowser = typeof window !== 'undefined',
 
-        change: function (listener, context) {
-            this._listeners.push({
-                ctx:    context || this,
-                fn:     listener
-            });
-            return this;
-        },
-
-        _digest: function () {
-            var value = this._value;
-            this._listeners.forEach(function (listener) {
-                listener.fn.call(listener.ctx, value);
-            });
-        },
+    StandardInterface = Extendable.extend({
 
         get: function () {
             return this._value;
@@ -34,7 +24,6 @@ spider.define(function () {
         set: function (newValue, options) {
             if (this._value !== newValue) {
                 this._value = newValue;
-                this._digest();
 
                 // The silently option should only be used by the setter methods stored in Sync._setters.
                 if (options === undefined || options.silently !== true) {
@@ -44,7 +33,16 @@ spider.define(function () {
             }
         }
 
-    },
+    }),
+
+    EventInterface = StandardInterface.extend(EventEmitter);
+    EventInterface.set = function (newValue) {
+        var didChange = this._value !== newValue;
+        StandardInterface.set.apply(this, Array.prototype.slice.call(arguments));
+        if (didChange) {
+            this.emit('change', newValue);
+        }
+    };
 
     Sync = {
 
@@ -61,17 +59,18 @@ spider.define(function () {
             }
         },
 
-        create: function (prop, value) {
+        create: function (prop, value, options) {
             if(prop in this._setters) {
                 throw new Error('Property ' + prop + ' already exists.');
             }
 
-            var self = Object.create(interface);
+            options = options || {};
+
+            var self = Object.create(('watch' in options && options.watch === true) ? EventInterface : StandardInterface);
 
             // Initialize all the "private" variables.
             self._prop = prop;
-            self._value = null;
-            self._listeners = [];
+            self._value = undefined;
 
             // Every property must have access to the private sync method.
             self._sync = this._sync.bind(this);
@@ -83,22 +82,25 @@ spider.define(function () {
             };
 
             if (arguments.length > 1) {
-                self.set(value);
+                self.set(value, {silently: options.silently || false});
             }
 
             return self;
         },
 
         flush: function (options) {
-            if (options !== undefined && options.doNotSend === true) {
-                return JSON.stringify(this._staged);
+            if (options !== undefined && options.local === true) {
+                var str = JSON.stringify(this._staged);
+                this._staged = [];
+                return JSON.parse(str);
             } else {
-                this._send(this._staged);
+                this.send(this._staged);
                 this._staged = [];
             }
         },
 
         _handleMessage: function (raw) {
+            console.log(raw.data);
             var data = JSON.parse(raw.data);
 
             if (Array.isArray(data)) {
@@ -115,13 +117,21 @@ spider.define(function () {
                 this._socket = ws;
             }
 
-            this._socket.onopen = function() { console.log('Socket opened.'); }
+            this._socket.onopen = function() {
+                console.log('Socket opened.');
+                if (!this._stage && this._staged.length > 0) {
+                    this.flush();
+                }
+            }.bind(this);
             this._socket.onmessage = this._handleMessage.bind(this);
-            this._socket.onclose = function() { console.log('Socket closed.'); }
+            this._socket.onclose = function() {
+                console.log('Socket closed.');
+            }
         },
 
-        _send: function (data) {
-            this._socket.send(JSON.stringify(data));
+        send: function (data) {
+            this._socket.send(typeof data === 'string' ? data : JSON.stringify(data));
+            console.log(typeof data === 'string' ? data : JSON.stringify(data));
         },
 
         _sync: function (prop, value) {
@@ -130,10 +140,11 @@ spider.define(function () {
                 value:  value
             };
 
-            if (this._stage) {
+            // Auto-stage any properties created before the socket is ready.
+            if (this._stage || !('_socket' in this && this._socket.readyState === 1)) {
                 this._staged.push(data);
             } else {
-                this._send(data);
+                this.send(data);
             }
         }
     };
@@ -143,14 +154,15 @@ spider.define(function () {
 
         options = options || {};
 
+        self._registry = {};
+        self._setters = {};
+        self._stage = options.stage || false;
+        self._staged = [];
+
         // Optionally postpone initialization of the library.
         if (arguments.length > 0) {
             self.init(ws);
         }
-
-        self._setters = {};
-        self._stage = options.stage || false;
-        self._staged = [];
 
         return self;
     }

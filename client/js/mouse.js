@@ -1,29 +1,28 @@
 spider.define(function (require) {
     
-    var Sync = require('../../shared/Sync'),
+    var Sync = require('Sync'),
         
-        offsetX, offsetY;
+        offsetX, offsetY,
+        
+        direction = Sync.create('direction', 1),
+        leftClick = Sync.create('leftClick'),
+        rightClick = Sync.create('rightClick');
         
     function init(x, y) {
         offsetX = x;
         offsetY = y;
         
         document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        document.addEventListener('mousedown', handleMouseDown);
+        //document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('mousedown', handleLeftClick);
         document.addEventListener('contextmenu', handleRightClick);
     }
 
-    function handleMouseDown(event) {
-        if (skills[selectedSkill]) {
-            send('leftmousedown', {
-                x:event.clientX - offsetX,
-                y:event.clientY - offsetY,
-                skill:skills[selectedSkill]
-            });
-        } else {
-            warn('That ability is not equipped.');
-        }
+    function handleLeftClick(event) {
+        leftClick.set({
+            x: event.clientX - offsetX,
+            y: event.clientY - offsetY
+        });
     }
     
     function handleMouseMove(event) {
@@ -47,20 +46,22 @@ spider.define(function (require) {
             }
         }
         //console.log(relX, relY, newDirection);
-        if (direction !== newDirection) {
-            direction = newDirection;
-            //send('changeDirection', direction);
+        if (direction.get() !== newDirection) {
+            direction.set(newDirection);
         }
     }
     
-    function handleMouseUp(event) {
+    /*function handleMouseUp(event) {
         //var button = ('which' in event) ? event.which : event.button;
         send('leftmouseup', {x:event.clientX - offsetX, y:event.clientY - offsetY});
-    }
+    }*/
     
     function handleRightClick(event) {
         event.preventDefault();
-        send('rightclick', {x:event.clientX - offsetX, y:event.clientY - offsetY});
+        rightClick.set({
+            x: event.clientX - offsetX,
+            y: event.clientY - offsetY
+        });
     }
         
     return {

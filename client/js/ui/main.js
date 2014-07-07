@@ -1,7 +1,7 @@
 spider.define(function (require) {
 
     var chat    = require('./chat'),
-        Sync    = require('../../../shared/Sync'),
+        Sync    = require('Sync'),
 
         // minimap vars
         minimap = document.getElementById('minimap'),
@@ -15,7 +15,7 @@ spider.define(function (require) {
             health:     bars.health.nextSibling,
             resource:   bars.resource.nextSibling
         },
-        resourceChange = Sync.create('resources').change(setResource),
+        resourceChange = Sync.create('resources', {}, {watch: true, silently:true}).on('change', setResource),
 
         // skill vars
         selectedSkill,

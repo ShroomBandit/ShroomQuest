@@ -1,7 +1,7 @@
 spider.define(function (require) {
     
     var chat    = require('./ui/chat'),
-        Sync    = require('../../shared/Sync'),
+        Sync    = require('Sync'),
         ui      = require('./ui/main'),
     
         // key event vars
@@ -65,6 +65,7 @@ spider.define(function (require) {
         } else if (typeof key === 'number') {
             ui.selectSkill(key);
         } else {
+            // TODO: Handle shift and enter.
         }
     }
     

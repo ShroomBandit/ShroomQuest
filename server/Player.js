@@ -5,7 +5,8 @@ module.exports = Character.extend({
 
     create: function (id, playerData, server, Sync) {
         // normally load position from database...
-        var x = 1000, y = 1000;
+        var x = Sync.create('x', 1000),
+            y = Sync.create('y', 1000);
 
         var self = Character.create.call(this, id, 'player', x, y);
 
@@ -15,57 +16,52 @@ module.exports = Character.extend({
 
         self.chatQueue = [];
         self.stats = {
-            agility:20, // move speed
-            attackSpeed:.5, // attack speed
-            dexterity:20, // range damage
-            endurance:20, // health
-            intellect:20, // mana
-            rejuvenation:20, // health rejuv
-            resilience:0, //
-            strength:20, // melee damage
-            willpower:20 // magic damage
+            agility:        20, // move speed
+            attackSpeed:    .5, // attack speed
+            dexterity:      20, // range damage
+            endurance:      20, // health
+            intellect:      20, // mana
+            rejuvenation:   20, // health rejuv
+            resilience:     0, //
+            strength:       20, // melee damage
+            willpower:      20 // magic damage
         };
         self.maxHealth = self.stats.endurance*5;
         self.health = self.maxHealth;
 
         self.slot = {
-            head:false,
-            torso:false,
-            legs:false,
-            feet:false,
-            hands:false,
-            neck:false,
-            ring1:false,
-            ring2:false,
-            weapon:false,
-            shield:false
+            head:   false,
+            torso:  false,
+            legs:   false,
+            feet:   false,
+            hands:  false,
+            neck:   false,
+            ring1:  false,
+            ring2:  false,
+            weapon: false,
+            shield: false
         };
 
         self.keys = {
-            'w':false,
-            'a':false,
-            's':false,
-            'd':false
+            w: Sync.create('w'),
+            a: Sync.create('a'),
+            s: Sync.create('s'),
+            d: Sync.create('d')
         };
         self.velocity = 100;
 
-        Sync.create('chatQueue').change(self.chatQueue.push);
-        Sync.create('keydown').change(function (data) {
-            self.keys[data] = true;
-        });
-        Sync.create('keyup').change(function (data) {
-            self.keys[data] = false;
-        });
-        Sync.create('changeDirection').change(self.changeDirection); // not implemented yet
-        Sync.create('leftmousedown').change(function (data) {
+        Sync.create('chatQueue', [], {watch: true, silently: true}).on('change', self.chatQueue.push, self);
+        Sync.create('direction', {}, {watch: true, silently: true}).on('change', self.changeDirection, self); // not implemented yet
+        Sync.create('leftClick', {}, {watch: true, silently: true}).on('change', function (data) {
             // in the future, get data from active spell
             var pos = self.getPosition();
             var v, r, d;
-            if (data.skill === 'small') {
+            //if (data.skill === 'small') {
+            if (true) {
                 v = 200,
                 r = 3,
                 d = 10;
-            } else if(data.skill === 'big') {
+            } else if (data.skill === 'big') {
                 v = 100,
                 r = 7,
                 d = 40;
@@ -133,25 +129,21 @@ module.exports = Character.extend({
     },
 
     updatePosition: function (timeDelta) {
-        var distance = Math.round((((this.keys.w || this.keys.s) && (this.keys.a && this.keys.d)) ?
+        var distance = Math.round((((this.keys.w.get() || this.keys.s.get()) && (this.keys.a.get() && this.keys.d.get())) ?
             this.velocity*Math.sqrt(2) : this.velocity) * timeDelta),
-            prevX = this.x,
-            prevY = this.y;
-        if (this.keys.w) {
-            this.y -= distance;
+            prevX = this.x.get(),
+            prevY = this.y.get();
+        if (this.keys.w.get()) {
+            this.y.set(prevY - distance);
         }
-        if (this.keys.a) {
-            this.x -= distance;
+        if (this.keys.a.get()) {
+            this.x.set(prevX - distance);
         }
-        if (this.keys.s) {
-            this.y += distance;
+        if (this.keys.s.get()) {
+            this.y.set(prevY + distance);
         }
-        if (this.keys.d) {
-            this.x += distance;
-        }
-        if (prevX !== this.x || prevY !== this.y) {
-            this.changes.x = this.x;
-            this.changes.y = this.y;
+        if (this.keys.d.get()) {
+            this.x.set(prevX + distance);
         }
     }
 

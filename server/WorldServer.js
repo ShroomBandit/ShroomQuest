@@ -128,39 +128,22 @@ module.exports = {
 
     update: function (timeDelta) {
         var self = this,
-        // The events array is an array of objects, where each object
-        // contains and event and its corresponding data to be broadcasted
-        // to all the clients (players).
-            events = [],
+            changes = [],
+            changeString;
 
-            projData = [];
-
-        // check for player updates
+        // Update all players and push changes.
         this.forEachEntity(this.players, function (player) {
             player.updatePosition(timeDelta);
-            var messages = player.emptyChatQueue(),
-                playerData = player.getChanges();
+            changes.push.apply(changes, player.Sync.flush({local: true}));
+        });
 
-            if (messages) {
-                events.push({
-                    event:  'chat',
-                    data:   messages
-                });
-            }
-
-            if (playerData) {
-                events.push({
-                    event:  'player',
-                    data:   {
-                        username:   player.username,
-                        attributes: playerData
-                    }
-                });
-            }
+        changeString = JSON.stringify(changes);
+        this.forEachEntity(this.players, function (player) {
+            player.Sync.send(changeString);
         });
 
         // update all projectiles
-        this.forEachEntity(this.projectiles, function (projectile, i) {
+        /*this.forEachEntity(this.projectiles, function (projectile, i) {
             var temp;
             if (projectile.x === projectile.destX && projectile.y === projectile.destY) {
                 this.removeProjectile(i);
@@ -177,10 +160,10 @@ module.exports = {
                 event:  'projectiles',
                 data:   projData
             });
-        }
+        }*/
 
         // test for collisions
-        this.forEachEntity(this.players, function (player, i) {
+        /*this.forEachEntity(this.players, function (player, i) {
             this.forEachEntity(this.projectiles, function (projectile, j) {
                 var collision = this.testCollision(player, projectile);
                 if (collision && i !== projectile.owner) {
@@ -188,12 +171,7 @@ module.exports = {
                     this.removeProjectile(j);
                 }
             });
-        });
-
-        // broadcast if necessary
-        if (events.length > 0) {
-            this.broadcastToWorld(JSON.stringify(events));
-        };
+        });*/
     }
 
 }
