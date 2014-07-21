@@ -1,6 +1,8 @@
-spider.define(function () {
+spider.define(function (require) {
 
-    return {
+    var Extendable = require('Extendable');
+
+    return Extendable.extend({
 
         create: function (x, y) {
             var self = Object.create(this);
@@ -53,6 +55,6 @@ spider.define(function () {
             }
         }
 
-    }
+    });
 
 });

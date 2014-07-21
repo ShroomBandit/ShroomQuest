@@ -51,7 +51,6 @@ module.exports = Character.extend({
         self.velocity = 100;
 
         Sync.create('chatQueue', [], {watch: true, silently: true}).on('change', self.chatQueue.push, self);
-        Sync.create('direction', {}, {watch: true, silently: true}).on('change', self.changeDirection, self); // not implemented yet
         Sync.create('leftClick', {}, {watch: true, silently: true}).on('change', function (data) {
             // in the future, get data from active spell
             var pos = self.getPosition();
@@ -72,6 +71,7 @@ module.exports = Character.extend({
             // save data to database
             self.server.removePlayer(self.id);
         });*/
+        return self;
     },
 
     emptyChatQueue: function () {

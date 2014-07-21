@@ -24,7 +24,7 @@ module.exports = {
         self.projectiles = [];
         self.running = false;
         self.staged = {};
-        self.updatesPerSecond = 60;
+        self.updatesPerSecond = 30;
 
         self.server.on('connection', function (socket) {
             var data, Sync,
@@ -54,7 +54,7 @@ module.exports = {
         var id = this.getValidId(this.players),
             self = this;
 
-        this.players[id] = 'staged';
+        this.players[id] = false;
         this.staged[ip] = {
             id:         id,
             playerData: playerData,
@@ -109,9 +109,9 @@ module.exports = {
 
         this.running = setInterval(function() {
             var current = Date.now();
-            //self.update((current - previous) / 1000);
+            self.update((current - previous) / 1000);
             previous = current;
-        }, self.updatesPerSecond);
+        }, 1000 / self.updatesPerSecond);
     },
 
     stop: function () {

@@ -1,4 +1,5 @@
 spider.alias('../../shared/Sync', 'Sync');
+spider.alias('../../shared/Extendable', 'Extendable');
 
 spider.define(function (require) {
 
@@ -7,6 +8,7 @@ spider.define(function (require) {
         loader      = require('./loader'),
         map         = require('./map'),
         mouse       = require('./mouse'),
+        Player      = require('./Player'),
         Sync        = require('Sync'),
         ui          = require('./ui/main'),
         utils       = require('./utils'),
@@ -25,6 +27,8 @@ spider.define(function (require) {
         },
         model = {},
         players = {},
+
+        isPaused = false,
 
         loginData;
 
@@ -56,10 +60,13 @@ spider.define(function (require) {
         // do not continue execution if the model has not been written yet
         var username = loginData.get().username;
         if (!(username in players)) {
-            return false;
+            return;
         }
 
         var me = players[username].getPosition();
+        if (me.x === undefined || me.y === undefined) {
+            return;
+        }
 
         // redraw background
         map.draw(bgctx, me.x, me.y, loader.images.map);
@@ -88,10 +95,18 @@ spider.define(function (require) {
         map.minimap(entctx, model.players);
     }
 
+    function pause() {
+        isPaused = true;
+    }
+
     function step() {
-        render();
+        if (isPaused !== true) {
+            render();
+        }
         requestAnimationFrame(step);
     }
+
+    window.pause = pause;
 
     worldEvents = {
         death: location.reload,
@@ -114,7 +129,7 @@ spider.define(function (require) {
         Sync.init(window.location.hostname + ':' + port);
         dialog.style.display = 'none';
         loader.loadImages(function () {
-            players[loginData.get().username] = Character.create(1000, 1000);
+            players[loginData.get().username] = Player.create(1000, 1000);
             document.getElementById('gameWrapper').style.display = 'block';
             map.config(gameWindow.x, gameWindow.y);
             ui.init();

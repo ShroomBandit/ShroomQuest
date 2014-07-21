@@ -51,8 +51,7 @@ spider.define(function (require) {
                 if(data.prop in this._setters) {
                     this._setters[data.prop](data.value);
                 } else {
-                    // TODO: create silently
-                    this.create(data.prop, data.value);
+                    this._tmp[data.prop] = data.value;
                 }
             } else {
                 throw new Error('Received bad message: ' + JSON.stringify(data));
@@ -71,6 +70,12 @@ spider.define(function (require) {
             // Initialize all the "private" variables.
             self._prop = prop;
             self._value = undefined;
+
+            if (prop in this._tmp) {
+                //self.set(this._tmp[prop], {silently: false});
+                self._value = this._tmp[prop];
+                delete this._tmp[prop];
+            }
 
             // Every property must have access to the private sync method.
             self._sync = this._sync.bind(this);
@@ -100,11 +105,13 @@ spider.define(function (require) {
         },
 
         _handleMessage: function (raw) {
-            console.log(raw.data);
-            var data = JSON.parse(raw.data);
+            //console.log('received:' + raw.data);
+            var setter,
+                data = JSON.parse(raw.data);
 
             if (Array.isArray(data)) {
-                data.forEach(this._callSetter.bind(this))
+                setter = this._callSetter.bind(this)
+                data.forEach(setter)
             } else {
                 this._callSetter(data);
             }
@@ -130,8 +137,10 @@ spider.define(function (require) {
         },
 
         send: function (data) {
-            this._socket.send(typeof data === 'string' ? data : JSON.stringify(data));
-            console.log(typeof data === 'string' ? data : JSON.stringify(data));
+            if (this._socket.readyState === 1) {
+                this._socket.send(typeof data === 'string' ? data : JSON.stringify(data));
+            }
+            //console.log('sent:' + (typeof data === 'string' ? data : JSON.stringify(data)));
         },
 
         _sync: function (prop, value) {
@@ -154,10 +163,10 @@ spider.define(function (require) {
 
         options = options || {};
 
-        self._registry = {};
         self._setters = {};
         self._stage = options.stage || false;
         self._staged = [];
+        self._tmp = {};
 
         // Optionally postpone initialization of the library.
         if (arguments.length > 0) {
