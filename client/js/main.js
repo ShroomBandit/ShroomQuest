@@ -76,6 +76,8 @@ spider.define(function (require) {
         utils.framerate(entctx, gameWindow.x - 100, 20);
         players[username].draw(entctx, gameWindow.x/2, gameWindow.y/2, loader.images.character);
 
+        /*
+         * TODO: Add these parts back piece by piece.
         for (var player in players) {
             if (player !== username) {
                 players[player].draw(entctx, players[player].x - me.x + gameWindow.x/2, players[player].y - me.y + gameWindow.y/2, images.character);
@@ -93,6 +95,7 @@ spider.define(function (require) {
         }
 
         map.minimap(entctx, model.players);
+        */
     }
 
     function pause() {
@@ -104,6 +107,7 @@ spider.define(function (require) {
             render();
         }
         requestAnimationFrame(step);
+        //setTimeout(step, 500);
     }
 
     window.pause = pause;
@@ -133,7 +137,7 @@ spider.define(function (require) {
             document.getElementById('gameWrapper').style.display = 'block';
             map.config(gameWindow.x, gameWindow.y);
             ui.init();
-            mouse.init(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2)
+            mouse.config(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2)
             keys.init();
             step();
         });

@@ -1,53 +1,49 @@
 spider.define(function (require) {
 
-    var Extendable = require('Extendable');
+    var Entity  = require('./Entity'),
+        Sync    = require('Sync');
 
-    return Extendable.extend({
+    return Entity.extend({
 
-        create: function (x, y) {
-            var self = Object.create(this);
-            self.x = x;
-            self.y = y;
-            self.prevX = x;
-            self.prevY = y;
+        create: function (id) {
+            var self = Entity.create.call(this, id);
+            self.prevX = self.x.get();
+            self.prevY = self.y.get();
             self.animationDelay = 100;
             self.animationStep = 1;
             self.animationTime = Date.now();
-            self.direction = 3;
+            self.direction = Sync.create('direction', 3);
             return self;
         },
 
         draw: function (ctx, x, y, images) {
+            var parts = ['body', 'feet', 'legs', 'torso', 'belt', 'hair'],
+                self = this;
             this.updateSprite();
-            ctx.drawImage(images.body, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
-            ctx.drawImage(images.feet, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
-            ctx.drawImage(images.legs, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
-            ctx.drawImage(images.torso, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
-            ctx.drawImage(images.belt, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
-            ctx.drawImage(images.hair, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
-            ctx.drawImage(images.head, (this.animationStep-1)*64, (this.direction-1)*64, 64, 64, x-32, y-32, 64, 64);
+            parts.forEach(function (part) {
+                self.drawPart(ctx, x, y, images[part]);
+            });
         },
 
-        getPosition: function () {
-            return {
-                x: this.x,
-                y: this.y
-            }
+        drawPart: function (ctx, x, y, image) {
+            ctx.drawImage(image, (this.animationStep-1)*64, (this.direction.get()-1)*64, 64, 64, x-32, y-32, 64, 64);
         },
 
-        updateAttributes: function (attributes) {
+        /*updateAttributes: function (attributes) {
             for(var attr in attributes) {
                 this[attr] = attributes[attr];
             };
-        },
+        },*/
 
         updateSprite: function () {
-            var time = Date.now();
+            var time = Date.now(),
+                x = this.x.get(),
+                y = this.y.get();
             if (time - this.animationDelay > this.animationTime) {
-                if (this.prevX !== this.x || this.prevY !== this.y) {
+                if (this.prevX !== x || this.prevY !== y) {
                     this.animationStep = (this.animationStep % 9) + 1;
-                    this.prevX = this.x;
-                    this.prevY = this.y;
+                    this.prevX = x;
+                    this.prevY = y;
                 } else if (this.animationStep !== 1) {
                     this.animationStep = 1;
                 }

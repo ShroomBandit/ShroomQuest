@@ -2,15 +2,18 @@ spider.define(function (require) {
     
     var Sync = require('Sync'),
         
-        offsetX, offsetY,
+        offsetX, offsetY, direction,
         
-        direction = Sync.create('direction', 1),
         leftClick = Sync.create('leftClick'),
         rightClick = Sync.create('rightClick');
         
-    function init(x, y) {
+    function config(x, y) {
         offsetX = x;
         offsetY = y;
+    }
+
+    function init(d) {
+        direction = d;
         
         document.addEventListener('mousemove', handleMouseMove);
         //document.addEventListener('mouseup', handleMouseUp);
@@ -65,6 +68,7 @@ spider.define(function (require) {
     }
         
     return {
+        config: config,
         init: init
     }
 });

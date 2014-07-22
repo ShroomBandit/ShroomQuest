@@ -10,16 +10,14 @@ spider.define(function () {
 
     return {
 
-        extend: function () {
+        extend: function (/* extensions... */) {
             var extensions = Array.prototype.slice.call(arguments),
                 self = Object.create(this);
 
             extensions.forEach(function (extension) {
-                for (var property in extension) {
-                    if (extension.hasOwnProperty(property)) {
-                        self[property] = extension[property];
-                    }
-                }
+                Object.keys(extension).forEach(function (property) {
+                    self[property] = extension[property];
+                });
             });
 
             return self;

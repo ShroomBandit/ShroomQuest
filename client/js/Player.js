@@ -1,22 +1,15 @@
 spider.define(function (require) {
 
     var Character   = require('./Character'),
+        mouse       = require('./mouse'),
         Sync        = require('Sync');
 
     return Character.extend({
 
-        create:function(x, y) {
-            var self = Character.create.call(this, x, y);
-            self.x = Sync.create('x');
-            self.y = Sync.create('y');
+        create: function(id) {
+            var self = Character.create.call(this, id);
+            mouse.init(self.direction);
             return self;
-        },
-
-        getPosition: function () {
-            return {
-                x: this.x.get(),
-                y: this.y.get()
-            }
         }
 
     });
