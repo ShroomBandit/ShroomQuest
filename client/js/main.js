@@ -132,7 +132,7 @@ spider.define(function (require) {
     Sync.create('port', undefined, {watch: true, silently: true}).on('change', function (port) {
         Sync.init(window.location.hostname + ':' + port);
         dialog.style.display = 'none';
-        loader.loadImages(function () {
+        loader.start(function () {
             players[loginData.get().username] = Player.create(1000, 1000);
             document.getElementById('gameWrapper').style.display = 'block';
             map.config(gameWindow.x, gameWindow.y);
