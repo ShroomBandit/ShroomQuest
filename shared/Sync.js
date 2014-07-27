@@ -59,7 +59,7 @@ spider.define(function (require) {
         },
 
         create: function (prop, value, options) {
-            if(prop in this._setters) {
+            if (prop in this._setters) {
                 throw new Error('Property ' + prop + ' already exists.');
             }
 
