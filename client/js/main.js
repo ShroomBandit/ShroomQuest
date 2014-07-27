@@ -15,6 +15,7 @@ spider.define(function (require) {
 
         dialog      = document.getElementById('loginDialog'),
         loginButton = document.getElementById('login'),
+        progressBar = document.getElementById('progressBar'),
 
         ent     = document.getElementById('entities'),
         bg      = document.getElementById('background'),
@@ -126,14 +127,19 @@ spider.define(function (require) {
     ent.height = gameWindow.y;
     bg.width = gameWindow.x;
     bg.height = gameWindow.y;
+    progressBar.style.marginTop = gameWindow.y/2 + 'px';
 
     Sync.create('worldList', [], {watch: true, silently: true}).on('change', printWorldList);
 
     Sync.create('port', undefined, {watch: true, silently: true}).on('change', function (port) {
         Sync.init(window.location.hostname + ':' + port);
         dialog.style.display = 'none';
-        loader.start(function () {
+        progressBar.style.display = 'block';
+        loader.start(function (progress) {
+            progressBar.value = progress;
+        }, function () {
             players[loginData.get().username] = Player.create(1000, 1000);
+            progressBar.style.display = 'none';
             document.getElementById('gameWrapper').style.display = 'block';
             map.config(gameWindow.x, gameWindow.y);
             ui.init();

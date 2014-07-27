@@ -2,7 +2,8 @@ spider.define(function (require) {
 
     var constants = require('./constants'),
 
-        handleLoaderFinish = function () {},
+        handleFinish = function () {},
+        handleStep = function () {},
         images = JSON.parse(JSON.stringify(constants.images)),
 
         counts = {
@@ -12,9 +13,9 @@ spider.define(function (require) {
 
     function checkImageLoad() {
         counts.loaded++;
-        step();
+        handleStep(Math.round(100*counts.loaded/counts.total));
         if (counts.loaded === counts.total) {
-            handleLoaderFinish();
+            handleFinish();
         }
     }
 
@@ -57,14 +58,10 @@ spider.define(function (require) {
         }
     }
 
-    function start(callback) {
+    function start(onStep, onFinish) {
         findImageSets(images);
-        //setup progress bar
-        handleLoaderFinish = callback;
-    }
-
-    function step() {
-        //update progress bar
+        handleStep = onStep;
+        handleFinish = onFinish;
     }
 
     return {

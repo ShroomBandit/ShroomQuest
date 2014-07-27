@@ -12,6 +12,8 @@
 
         #foreground{position:absolute; left:0px; top:0px;}
 
+        #progressBar{display:none; margin:0 auto;}
+
         #chat{width:300px; height:150px; color:#ffffff; position:absolute; background-color:#000000; opacity:0.4; resize:both; overflow:hidden; left:5px; top:495px;}
         #chat>*{position:absolute; resize:none;}
         #chatDrag{right:0px; top:0px; cursor:move;}
@@ -41,6 +43,7 @@
         <select id="worldList" name="world"><option></option></select>
         <button id="login" type="button" disabled>Login</button>
     </form>
+    <progress id="progressBar" value="0" max="100"></progress>
     <div id="gameWrapper">
         <canvas id="background" width="1100" height="650"></canvas>
         <canvas id="entities" width="1100" height="650"></canvas>
