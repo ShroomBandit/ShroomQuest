@@ -49,9 +49,6 @@ spider.define(function (require) {
         for (var y = 0; y < gameWindow.tiles.y + 1; y++) {
             for (var x = 0; x < gameWindow.tiles.x + 1; x++) {
                 var tileNum = x + canvasOrigin.tiles.x + (y + canvasOrigin.tiles.y)*map.x;
-                /*    img = new Image();
-                img.src = '/images/tiles/' + tiles[tileNum] + '.png';
-                img.onload = function() {ctx.drawImage(img, x * tilesize - offset.x, y * tilesize - offset.y); console.log('hi')};*/
                 ctx.drawImage(images[tiles[tileNum]], x * tilesize - offset.x, y * tilesize - offset.y);
             }
         }
@@ -71,7 +68,6 @@ spider.define(function (require) {
     }
 
     Sync.create('map', {}, {watch: true, silently: true}).on('change', function (mapData) {
-        console.log(mapData);
         // mapData must have the properties:
         //   width, height, tiles, tilesize
         tiles = mapData.tiles;

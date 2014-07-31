@@ -1,4 +1,5 @@
 spider.alias('../../shared/Sync', 'Sync');
+spider.alias('../../shared/EventEmitter', 'EventEmitter');
 spider.alias('../../shared/Extendable', 'Extendable');
 
 spider.define(function (require) {
@@ -123,6 +124,8 @@ spider.define(function (require) {
         }
     };
 
+    keys.setMode('bypass');
+
     ent.width = gameWindow.x;
     ent.height = gameWindow.y;
     bg.width = gameWindow.x;
@@ -144,7 +147,7 @@ spider.define(function (require) {
             map.config(gameWindow.x, gameWindow.y);
             ui.init();
             mouse.config(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2)
-            keys.init();
+            keys.setMode('normal');
             step();
         });
     });

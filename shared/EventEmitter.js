@@ -10,7 +10,7 @@ spider.define(function () {
 
     return {
 
-        emit: function (event) {
+        emit: function (event /*, args...*/) {
             var args;
 
             if (Array.isArray(event)) {

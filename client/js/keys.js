@@ -1,9 +1,13 @@
 spider.define(function (require) {
+    'use strict';
     
-    var chat    = require('./ui/chat'),
-        Sync    = require('Sync'),
-        ui      = require('./ui/main'),
+    var EventEmitter    = require('EventEmitter'),
+        Extendable      = require('Extendable'),
+        keybindings     = require('./keybindings'),
     
+        exports,
+        messenger = Extendable.extend(EventEmitter),
+
         // key event vars
         keymap = {
             '87':'w',
@@ -23,58 +27,39 @@ spider.define(function (require) {
             '56':8,
             '57':9
         },
-        pressed = {};
+        
+        modes = ['normal', 'bypass'],
+        mode = modes[0];
     
-    function init() {
-        for (var keyCode in keymap) {
-            if (isMovementKey(keymap[keyCode])) {
-                pressed[keymap[keyCode]] = Sync.create(keymap[keyCode], false);
-            }
+    function emitKeyEvent(isDown, event) {
+        var key = keymap[event.keyCode];
+        if (key !== undefined && key in keybindings) {
+            exports.emit(keybindings[key], key, isDown, event);
         }
-        addKeyEventListeners();
     }
 
-    function addKeyEventListeners() {
-        document.addEventListener('keydown', function (event){
-            if (event.keyCode in keymap) {
-                var key = keymap[event.keyCode];
-
-                // The enter key will trigger the chat window.
-                if (key === 'enter') {
-                    event.preventDefault();
-                    chat.use();
-                } else if (!chat.isChatting()) {
-                    handleKey(key, true);
-                }
-            }
-        });
-
-        document.addEventListener('keyup', function (event){
-            // Disregard keyup events when chatting.
-            if (event.keyCode in keymap && !chat.isChatting()) {
-                var key = keymap[event.keyCode];
-                
-                handleKey(key, false);
-            }
-        });
+    function handleKey(isDown, event) {
+        switch (mode) {
+            case 'normal': emitKeyEvent(isDown, event); break;
+            default: break;
+        }
     }
     
-    function handleKey(key, isDown) {
-        if (isMovementKey(key)) {
-            pressed[key].set(isDown);
-        } else if (typeof key === 'number') {
-            ui.selectSkill(key);
+    function setMode(newMode) {
+        if (modes.indexOf(newMode) !== -1) {
+            mode = newMode;
         } else {
-            // TODO: Handle shift and enter.
+            throw new Error('Invalid mode: ' + newMode);
         }
     }
-    
-    function isMovementKey(key) {
-        return 'wasd'.indexOf(key) !== -1;
-    }
-    
-    return {
-        init: init
-    }
+
+    document.addEventListener('keydown', handleKey.bind(null, true));
+    document.addEventListener('keyup', handleKey.bind(null, false));
+
+    exports = messenger.extend({
+        setMode: setMode
+    });
+
+    return exports;
 
 });
