@@ -1,5 +1,12 @@
+'use strict';
+
+/** @module */
 module.exports = {
-    query:function(attributes) {
+
+    /**
+     * @param {object} attributes
+     */
+    query: function(attributes) {
         var tests = Object.keys(attributes).length;
         for(var i = 0; i < inventory.length; i++) {
             var passed = 0;

@@ -1,4 +1,14 @@
-module.exports = generateMap = function(width, height) {
+'use strict';
+
+/** @module generateMap */
+
+/**
+ * Generate a map.
+ * @param {number} width
+ * @param {number} height
+ * @returns {array}
+ */
+module.exports = function(width, height) {
     var tiles = [];
     for(var y = 0; y < height; y++) {
         for(var x = 0; x < width; x++) {

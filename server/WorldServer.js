@@ -1,11 +1,21 @@
+'use strict';
+
 var createSync      = require('../shared/Sync'),
     generateMap     = require('./generateMap'),
 	Player          = require('./Player'),
     Projectile      = require('./Projectile'),
     WebSocketServer = require('./WebSocketServer');
 
+/**
+  * @class WorldServer
+  */
 module.exports = {
 
+    /**
+     * Create a new world server.
+     * @param {number} id
+     * @returns {object}
+     */
     create: function (id) {
         var self = Object.create(this);
 

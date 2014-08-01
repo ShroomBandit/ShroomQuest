@@ -1,8 +1,22 @@
+'use strict';
+
 var Character   = require('./Character'),
     inventory   = require('./inventory');
 
-module.exports = Character.extend({
+/** 
+  * @class Player
+  * @extends Character
+  */
+module.exports = Character.extend(/** @lends Player.prototype */{
 
+    /**
+     * Create a new character.
+     * @param {number} id - The id number of the character
+     * @param {string} type - I do not remember what this is for.
+     * @param {number} x - The starting x coordinate of the character
+     * @param {number} y - The starting y coordinate of the character
+     * @return {object} The created character
+     */
     create: function (id, playerData, server, Sync) {
         // normally load position from database...
         var x = Sync.create('x', 1000),

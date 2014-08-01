@@ -1,3 +1,9 @@
+'use strict';
+
+/**
+ * @module
+ */
+
 var WorldServer = require('./WorldServer'),
 
     worlds = [];

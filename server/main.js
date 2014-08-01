@@ -1,3 +1,5 @@
+'use strict';
+
 var createSync      = require('../shared/Sync.js'),
     WebServer       = require('./WebServer'),
     WebSocketServer = require('./WebSocketServer'),

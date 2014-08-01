@@ -1,3 +1,5 @@
+'use strict';
+
 var WSServer = require('ws').Server;
 
 WSServer.prototype.broadcast = function(message) {

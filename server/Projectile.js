@@ -1,6 +1,12 @@
+'use strict';
+
 var Entity = require('./Entity');
 
-module.exports = Entity.extend({
+/**
+ * @class Projectile
+ * @extends Entity
+ */
+module.exports = Entity.extend(/** @lends Projectile.prototype */{
 
     create: function (id, owner, startX, startY, destX, destY, velocity, radius, damage) {
         var self = Entity.create.call(this, id, 'projectile', startX, startY, radius);
