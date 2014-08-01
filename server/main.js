@@ -27,10 +27,10 @@ WebSocketServer.create({server: webServer.http})
                 loginStatus.set('Login failed.');
             } else {
                 //playerData = data from database...
-                playerData = {};
+                var playerData = {};
                 playerData.username = data.username;
                 if (worldManager.assignPlayer(data.world, playerData, socket.upgradeReq.connection.remoteAddress)) {
-                    world = worldManager.getWorld(data.world);
+                    var world = worldManager.getWorld(data.world);
                     if (world !== null) {
                         port.set(world.server.port);
                         socket.close();
