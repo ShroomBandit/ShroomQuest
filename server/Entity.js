@@ -1,9 +1,13 @@
+/** 
+  * @module
+  * @extends module:shared/Extendable
+  */
+
 'use strict';
 
 var Extendable = require('../shared/Extendable');
 
-/** @class Entity */
-module.exports = Extendable.extend(/** @lends Entity.prototype */{
+module.exports = Extendable.extend({
 
     /**
      * Create a new entity.
@@ -12,7 +16,7 @@ module.exports = Extendable.extend(/** @lends Entity.prototype */{
      * @param {number} x - The starting x coordinate of the entity
      * @param {number} y - The starting y coordinate of the entity
      * @param {number} hitRaidus - The distance at which to fire collisions with other entities
-     * @return {object} The created character
+     * @returns {object} The created entity
      */
     create: function (id, type, x, y, hitRadius) {
         var self = Object.create(this);
@@ -23,6 +27,10 @@ module.exports = Extendable.extend(/** @lends Entity.prototype */{
         return self;
     },
 
+    /**
+     * Get the position of the entity.
+     * @returns {object} A singleton with the x and y coordinates
+     */
     getPosition: function () {
         return {
             x: this.x,
@@ -30,6 +38,11 @@ module.exports = Extendable.extend(/** @lends Entity.prototype */{
         }
     },
 
+    /**
+     * Set the position of the entity.
+     * @param {number} x - The new x coordinate of the entity
+     * @param {number} y - The new y coordinate of the entity
+     */
     setPosition: function (x, y) {
         this.x = x;
         this.y = y;

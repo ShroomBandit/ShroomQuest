@@ -1,3 +1,5 @@
+/** @module */
+
 'use strict';
 
 var fs      = require('fs'),
@@ -68,6 +70,14 @@ function handleRequest(request, response) {
     }
 }
 
+/**
+ * A small convenience method for responding to requests
+ * @method
+ * @param {object} response - The response object passed into a request handler
+ * @param {number} code
+ * @param {object} headers
+ * @param {string} data
+ */
 function respond(response, code, headers, data) {
     response.writeHead(code, headers);
     response.write(data);
@@ -80,6 +90,10 @@ function send404(response) {
 
 module.exports = {
 
+    /**
+     * @param {string} root - The root path from which to serve files.
+     * @param {number} port - The port on which the server will listen for requests.
+     */
     create: function (root, port) {
         var self = Object.create(this);
         self.rewrites = [];
@@ -90,10 +104,20 @@ module.exports = {
         return self;
     },
 
+    /**
+     * Convinience wrapper for registering get request handlers
+     * @param {string} route
+     * @param {function} callback
+     */
     get: function (route, callback) {
         this.register(route, 'GET', callback);
     },
 
+    /**
+     * Convinience wrapper for registering post request handlers
+     * @param {string} route
+     * @param {function} callback
+     */
     post: function (route, callback) {
         this.register(route, 'POST', function(request, response) {
             request.setEncoding('utf8');
@@ -106,6 +130,12 @@ module.exports = {
         });
     },
 
+    /**
+     * Register a request handler for a given route and method
+     * @param {string} route
+     * @param {string} method - The http request method (e.g. 'GET')
+     * @param {function} callback
+     */
     register: function (route, method, callback) {
         if(!(method in this.router)) {
             this.router[method] = {};
@@ -123,6 +153,10 @@ module.exports = {
 
     respond: respond,
 
+    /**
+     * @param {object} pattern - A regex object used to match against incomming request routes
+     * @param {string} path The path that matches of the pattern will be redirected to
+     */
     rewrite: function (pattern, path) {
         this.rewrites.push({
             path:       path,

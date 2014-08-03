@@ -1,3 +1,5 @@
+/** @module */
+
 if (typeof spider === 'undefined') {
     var spider = {
         define: function (constructor) {
@@ -10,6 +12,11 @@ spider.define(function () {
 
     return {
 
+        /**
+         * Extend a prototype
+         * @method extend
+         * @returns {object} The new prototype
+         */
         extend: function (/* extensions... */) {
             var extensions = Array.prototype.slice.call(arguments),
                 self = Object.create(this);

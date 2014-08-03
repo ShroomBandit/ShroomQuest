@@ -1,13 +1,25 @@
+/**
+ * @module
+ * @extends module:server/Entity
+ */
+
 'use strict';
 
 var Entity = require('./Entity');
 
-/**
- * @class Projectile
- * @extends Entity
- */
-module.exports = Entity.extend(/** @lends Projectile.prototype */{
+module.exports = Entity.extend({
 
+    /**
+     * @param {number} id
+     * @param {number} owner - The id of the projectile's owner entity
+     * @param {number} startX
+     * @param {number} startY
+     * @param {number} destX
+     * @param {number} destY
+     * @param {number} velocity
+     * @param {number} radius
+     * @param {number} damage
+     */
     create: function (id, owner, startX, startY, destX, destY, velocity, radius, damage) {
         var self = Entity.create.call(this, id, 'projectile', startX, startY, radius);
         self.owner = owner;
@@ -18,6 +30,11 @@ module.exports = Entity.extend(/** @lends Projectile.prototype */{
         return self;
     },
 
+    /**
+     * Set the x and y velocity components of the projectile.
+     * This is called once at the projectile's creation.
+     * @param {number} velocity - The magnitude of the velocity vector
+     */
     calculateVelocityComponents: function (velocity) {
         var lengthX = this.destX - this.x,
             lengthY = this.destY - this.y,
@@ -30,6 +47,9 @@ module.exports = Entity.extend(/** @lends Projectile.prototype */{
         this.velocityY = Math.round(velocity*Math.sin(angle));
     },
 
+    /**
+     * @param {number} timeDelta
+     */
     updatePosition: function (timeDelta) {
         var newX = Math.round(this.x + this.velocityX * timeDelta),
             newY = Math.round(this.y + this.velocityY * timeDelta);

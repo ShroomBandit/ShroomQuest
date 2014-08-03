@@ -1,21 +1,21 @@
+/** 
+  * @module
+  * @extends module:server/Character
+  */
+
 'use strict';
 
 var Character   = require('./Character'),
     inventory   = require('./inventory');
 
-/** 
-  * @class Player
-  * @extends Character
-  */
-module.exports = Character.extend(/** @lends Player.prototype */{
+module.exports = Character.extend({
 
     /**
-     * Create a new character.
+     * Create a new player.
      * @param {number} id - The id number of the character
-     * @param {string} type - I do not remember what this is for.
-     * @param {number} x - The starting x coordinate of the character
-     * @param {number} y - The starting y coordinate of the character
-     * @return {object} The created character
+     * @param {object} playerData - Database information for the player such as name, position, etc.
+     * @param {object} server - The game server instance that the player is bound to
+     * @param {object} Sync - The Sync library instance that handles the player's connection
      */
     create: function (id, playerData, server, Sync) {
         // normally load position from database...
@@ -142,6 +142,9 @@ module.exports = Character.extend(/** @lends Player.prototype */{
         }
     },
 
+    /**
+     * @param {number} timeDelta
+     */
     updatePosition: function (timeDelta) {
         var distance = Math.round((((this.keys.w.get() || this.keys.s.get()) && (this.keys.a.get() && this.keys.d.get())) ?
             this.velocity*Math.sqrt(2) : this.velocity) * timeDelta),

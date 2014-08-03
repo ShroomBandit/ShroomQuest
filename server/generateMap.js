@@ -1,6 +1,6 @@
-'use strict';
+/** @module */
 
-/** @module generateMap */
+'use strict';
 
 /**
  * Generate a map.

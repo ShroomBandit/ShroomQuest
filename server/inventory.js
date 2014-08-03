@@ -1,31 +1,34 @@
+/** @module */
+
 'use strict';
 
-/** @module */
+function doesItemMatch(item, attributes) {
+    var passed = 0,
+        tests = Object.keys(attributes).length;
+    for (attr in attributes) {
+        if(!(attr in item) || attributes[attr] !== item[attr]) {
+            break;
+        } else {
+            passed++;
+        }
+    }
+    return passed === tests;
+}
+
 module.exports = {
 
     /**
      * @param {object} attributes
+     * @returns {array} matching items
      */
     query: function(attributes) {
-        var tests = Object.keys(attributes).length;
-        for(var i = 0; i < inventory.length; i++) {
-            var passed = 0;
-            for(attr in attributes) {
-                if(!(attr in inventory[i]) || attributes[attr] !== inventory[i][attr]) {
-                    break;
-                }else{
-                    passed++;
-                };
-            };
-            if(passed === tests) {
-                return inventory[i];
-            };
-        };
-        return false;
+        return items.forEach(function (item) {
+            return doesItemMatch(item, attributes);
+        });
     }
 };
 
-var inventory = [
+var items = [
     {
         name:'Inky Cap',
         type:'head',

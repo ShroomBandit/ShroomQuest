@@ -1,3 +1,5 @@
+/** @module */
+
 'use strict';
 
 var createSync      = require('../shared/Sync'),
@@ -6,9 +8,6 @@ var createSync      = require('../shared/Sync'),
     Projectile      = require('./Projectile'),
     WebSocketServer = require('./WebSocketServer');
 
-/**
-  * @class WorldServer
-  */
 module.exports = {
 
     /**
@@ -58,10 +57,14 @@ module.exports = {
         return self;
     },
 
+    /**
+     * Stores the ip address of the client,
+     * and waits up to five seconds for it to open a socket to the game server.
+     * @param {object} playerData
+     * @param {string} ip
+     */
     addPlayer: function (playerData, ip) {
-        // Store the ip address of the client,
-        // and wait up to five seconds for it to open a socket to the game server.
-        var id = this.getValidId(this.players),
+        var id = this.getValidId('players'),
             self = this;
 
         this.players[id] = false;
@@ -75,44 +78,83 @@ module.exports = {
         };
     },
 
+    /**
+     * @see module:server/Entity~create
+     * @param {number} owner - The id of the projectile's owner entity
+     * @param {number} startX
+     * @param {number} startY
+     * @param {number} destX
+     * @param {number} destY
+     * @param {number} velocity
+     * @param {number} radius
+     * @param {number} damage
+     */
     addProjectile: function (owner, startX, startY, destX, destY, velocity, radius, damage) {
-        var id = this.getValidId(this.projectiles);
+        var id = this.getValidId('projectiles');
         //console.log('projectile '+id+' fired by player '+owner);
         this.projectiles[id] = Projectile.create(id, owner, startX, startY, destX, destY, velocity, radius, damage);
     },
 
+    /**
+     * @param {string} message
+     */
     broadcastToWorld: function (message) {
-        this.forEachEntity(this.players, function (player) {
+        this.forEachEntity('players', function (player) {
             player.connection.send(message);
         });
     },
 
-    forEachEntity: function (entityList, fn) {
-        for (var i = 0; i < entityList.length; i++) {
-            if (entityList[i]) {
-                fn.call(this, entityList[i], i);
+    /**
+     * Iterate through a list of entities bound to the server.
+     * Provides a small for loop wrapper for convenience,
+     * since an entity will be false if it has been deleted
+     * and that id has not yet been reused.
+     * I.e., checking the existence of each entity is done before calling fn.
+     * @param {string} entityName - The name of the list of entities over which to iterate (plural)
+     * @param {function} fn - The function to call for each entity
+     */
+    forEachEntity: function (entityName, fn) {
+        var self = this;
+        this[entityName].forEach(function (element, i) {
+            if (element) {
+                fn.call(self, element, i);
             }
-        }
+        });
     },
 
-    getValidId: function (entityList) {
-        var ilen = entityList.length;
-        for (var i = 0; i < ilen; i++) {
-            if (entityList[i] === null) {
-                return i;
-            }
+    /**
+     * Get the first valid id number of an entity list.
+     * @param {string} entityName - The name of the list of entities to find an id in.
+     * @returns {number} id
+     */
+    getValidId: function (entityName) {
+        var i = 0;
+        while(this[entityName][i]) {
+            i++;
         }
-        return ilen;
+        return i;
     },
 
+    /**
+     * Remove a player from the world.
+     * @param {number} id
+     */
     removePlayer: function (id) {
         this.players[id] = null;
     },
 
+    /**
+     * Remove a projectile from the world.
+     * @param {number} id
+     */
     removeProjectile: function (id) {
         this.projectiles[id] = null;
     },
 
+    /**
+     * Start the server, sending updates with the configured frequency.
+     * @see updatesPerSecond
+     */
     start: function () {
         var self = this,
             previous = Date.now();
@@ -124,36 +166,50 @@ module.exports = {
         }, 1000 / self.updatesPerSecond);
     },
 
+    /**
+     * Stop the server.
+     */
     stop: function () {
         clearInterval(this.running);
         this.running = false;
     },
 
-    testCollision: function (id1, id2) {
-        var pos1 = id1.getPosition(),
-            pos2 = id2.getPosition(),
+    /**
+     * Test for a collistion between two entities.
+     * @param {number} entity1
+     * @param {number} entity2
+     * @returns {boolean}
+     */
+    testCollision: function (entity1, entity2) {
+        var pos1 = entity1.getPosition(),
+            pos2 = entity2.getPosition(),
             distance = Math.round(Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2)));
-        return (distance - id1.hitRadius - id2.hitRadius < 0) ? true : false;
+        return (distance - entity1.hitRadius - entity2.hitRadius < 0) ? true : false;
     },
 
+    /**
+     * This is the main game loop,
+     * which is controlled by the start and stop methods.
+     * @param {number} timeDelta - The time (in ms) that has passed since the last call to this method.
+     */
     update: function (timeDelta) {
         var self = this,
             changes = [],
             changeString;
 
         // Update all players and push changes.
-        this.forEachEntity(this.players, function (player) {
+        this.forEachEntity('players', function (player) {
             player.updatePosition(timeDelta);
             changes.push.apply(changes, player.Sync.flush({local: true}));
         });
 
         changeString = JSON.stringify(changes);
-        this.forEachEntity(this.players, function (player) {
+        this.forEachEntity('players', function (player) {
             player.Sync.send(changeString);
         });
 
         // update all projectiles
-        /*this.forEachEntity(this.projectiles, function (projectile, i) {
+        /*this.forEachEntity('projectiles', function (projectile, i) {
             var temp;
             if (projectile.x === projectile.destX && projectile.y === projectile.destY) {
                 this.removeProjectile(i);
@@ -173,8 +229,8 @@ module.exports = {
         }*/
 
         // test for collisions
-        /*this.forEachEntity(this.players, function (player, i) {
-            this.forEachEntity(this.projectiles, function (projectile, j) {
+        /*this.forEachEntity('players', function (player, i) {
+            this.forEachEntity('projectiles', function (projectile, j) {
                 var collision = this.testCollision(player, projectile);
                 if (collision && i !== projectile.owner) {
                     player.registerHit(projectile);
