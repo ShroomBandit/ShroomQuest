@@ -11,5 +11,4 @@ A multiplayer online videogame made for the web.
 
 ### Documentation
 
-Run `jsdoc -c jsdoc.json` to generate the documentation.  
-Navigate in your browser to /path/to/repo/doc/index.html
+Can be found [here](https://shroombandit.github.io/ShroomQuest/doc)

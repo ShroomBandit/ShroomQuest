@@ -9,7 +9,11 @@
     "dependencies": {
         "ws": ">=0.4.30"
     },
+    "devDependencies": {
+        "jsdoc": "3.2.2"
+    },
     "scripts": {
-        "start": "node server/main.js"
+        "start": "node server/main.js",
+        "docgen": "node ./node_modules/.bin/jsdoc -c ./jsdoc.json"
     }
 }
