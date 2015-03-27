@@ -138,17 +138,22 @@ spider.define(function (require) {
         Sync.init(window.location.hostname + ':' + port);
         dialog.style.display = 'none';
         progressBar.style.display = 'block';
+        players[loginData.get().username] = Player.create();
         loader.start(function (progress) {
             progressBar.value = progress;
         }, function () {
-            players[loginData.get().username] = Player.create(1000, 1000);
-            progressBar.style.display = 'none';
-            document.getElementById('gameWrapper').style.display = 'block';
-            map.config(gameWindow.x, gameWindow.y);
-            ui.init();
-            mouse.config(ent.clientLeft + gameWindow.x/2, ent.clientTop + gameWindow.y/2)
-            keys.setMode('normal');
-            step();
+            Sync.create('ready', false, {watch: true, silently: true}).on('change', function (ready) {
+                if (ready) {
+                    var gameWrapper = document.getElementById('gameWrapper');
+                    progressBar.style.display = 'none';
+                    gameWrapper.style.display = 'block';
+                    map.config(gameWindow.x, gameWindow.y);
+                    ui.init();
+                    mouse.config(gameWrapper.offsetLeft + gameWindow.x/2, gameWrapper.offsetTop + gameWindow.y/2);
+                    keys.setMode('normal');
+                    step();
+                }
+            });
         });
     });
 

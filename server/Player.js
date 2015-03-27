@@ -85,17 +85,8 @@ module.exports = Character.extend({
             // save data to database
             self.server.removePlayer(self.id);
         });*/
+        Sync.create('ready', true);
         return self;
-    },
-
-    emptyChatQueue: function () {
-        if (this.chatQueue.length > 0) {
-            var temp = this.chatQueue;
-            this.chatQueue = [];
-            return temp;
-        } else {
-            return false;
-        }
     },
 
     equip: function (itemName) {
